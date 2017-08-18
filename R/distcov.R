@@ -1,8 +1,27 @@
-distcov <- function(X, Y, affine = FALSE, bias_corr = FALSE, type.X = "sample", type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean", bandwith = 1)
+#' Calculate the distance covariance
+#'
+#' @param X contains either the first sample or its corresponding distance matrix. In the first case, this input can be either a vector of positive length, a matrix with one column or a data.frame with one column. In this case, type.X must be specified as "sample". In the second case, the input must be a distance matrix corresponding to the sample of interest. In this second case, type.X must be "distance".
+#' @param Y see X.
+#' @param affine logical; indicates if the affinely transformed distance covariance should be calculated or not.
+#' @param bias_corr logical; indicates if the bias corrected version of the sample distance covariance should be calculated.
+#' @param type.X either "sample" or "distance"; specifies the type of input for X.
+#' @param type.Y see type.X.
+#' @param metr.X specifies the metric which should be used for X to analyse the distance covariance. TO DO: Provide details for this.
+#' @param metr.Y see metr.X.
+#' @param bandwidth currently not implemented.
+#' @return numeric giving the distance covariance between samples X and Y.
+#' @export
+
+distcov <- function(X, Y, affine = FALSE, bias_corr = FALSE, type.X = "sample", type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean", bandwidth = 1)
 {
     ## extract dimensions and sample size
-    n <- nrow(as.matrix(X))
-    m <- nrow(as.matrix(Y))
+    if (type.X == "sample" && type.Y == "sample") {
+        n <- length(X)
+        m <- length(Y)
+    } else {
+        n <- nrow(as.matrix(X))
+        m <- nrow(as.matrix(Y))
+    }
 
     if (n != m) {
         stop("Samples X and Y must have the same sizes!")
@@ -90,8 +109,8 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = FALSE, type.X = "sample", 
     mY <- .Internal(mean(cmY))
 
     ## Centered distance matrices
-    A <- normalize_matrix(distX, cmX) + mX
-    B <- normalize_matrix(distY, cmY) + mY
+    A <- normalize_matrix(distX, cmX, mX)
+    B <- normalize_matrix(distY, cmY, mY)
 
   ## Bias correction if desired
     if (bias_corr == TRUE) {
