@@ -5,16 +5,78 @@
 
 using namespace Rcpp;
 
-// normalize_matrix
-NumericMatrix normalize_matrix(NumericMatrix M, NumericVector cmM, double mM);
-RcppExport SEXP DistCov_normalize_matrix(SEXP MSEXP, SEXP cmMSEXP, SEXP mMSEXP) {
+// DyadUpdate
+NumericVector DyadUpdate(NumericVector& Y, NumericVector& C);
+RcppExport SEXP _DistCov_DyadUpdate(SEXP YSEXP, SEXP CSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type M(MSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type cmM(cmMSEXP);
-    Rcpp::traits::input_parameter< double >::type mM(mMSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type C(CSEXP);
+    rcpp_result_gen = Rcpp::wrap(DyadUpdate(Y, C));
+    return rcpp_result_gen;
+END_RCPP
+}
+// add_vector
+NumericMatrix add_vector(NumericMatrix& X, NumericVector& Y);
+RcppExport SEXP _DistCov_add_vector(SEXP XSEXP, SEXP YSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type Y(YSEXP);
+    rcpp_result_gen = Rcpp::wrap(add_vector(X, Y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// match_coords
+NumericMatrix match_coords(NumericMatrix X, NumericMatrix Y);
+RcppExport SEXP _DistCov_match_coords(SEXP XSEXP, SEXP YSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
+    rcpp_result_gen = Rcpp::wrap(match_coords(X, Y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// normalize_matrix
+NumericMatrix normalize_matrix(NumericMatrix& M, NumericVector& cmM, double& mM);
+RcppExport SEXP _DistCov_normalize_matrix(SEXP MSEXP, SEXP cmMSEXP, SEXP mMSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type cmM(cmMSEXP);
+    Rcpp::traits::input_parameter< double& >::type mM(mMSEXP);
     rcpp_result_gen = Rcpp::wrap(normalize_matrix(M, cmM, mM));
     return rcpp_result_gen;
 END_RCPP
+}
+// hadamard_product
+NumericMatrix hadamard_product(NumericMatrix& X, NumericMatrix& Y);
+RcppExport SEXP _DistCov_hadamard_product(SEXP XSEXP, SEXP YSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type Y(YSEXP);
+    rcpp_result_gen = Rcpp::wrap(hadamard_product(X, Y));
+    return rcpp_result_gen;
+END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_DistCov_DyadUpdate", (DL_FUNC) &_DistCov_DyadUpdate, 2},
+    {"_DistCov_add_vector", (DL_FUNC) &_DistCov_add_vector, 2},
+    {"_DistCov_match_coords", (DL_FUNC) &_DistCov_match_coords, 2},
+    {"_DistCov_normalize_matrix", (DL_FUNC) &_DistCov_normalize_matrix, 3},
+    {"_DistCov_hadamard_product", (DL_FUNC) &_DistCov_hadamard_product, 2},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_DistCov(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }
