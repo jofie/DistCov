@@ -15,13 +15,10 @@
 distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample", type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean", bandwidth = 1)
 {
   ## extract dimensions and sample size
-  if (type.X == "sample" && type.Y == "sample") {
-    n <- length(X)
-    m <- length(Y)
-  } else {
+
     n <- nrow(as.matrix(X))
     m <- nrow(as.matrix(Y))
-  }
+
 
   if (n != m) {
     stop("Samples X and Y must have the same sizes!")
@@ -145,7 +142,10 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample", t
   return(dcov)
 }
 
-distcorr <- function(X, Y, affine = FALSE, bias_corr = FALSE, type.X = "sample", type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean", bandwith = 1) {
+distvar(X, affine = FALSE, bias_corr = FALSE, type = "sample", metr = "euclidean", bandwidth = 1)
+
+
+distcorr <- function(X, Y, affine = FALSE, bias_corr = FALSE, type.X = "sample", type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean", bandwidth = 1) {
   dvarX <- distcov(X, X, affine, bias_corr, type.X, type.X, metr.X, metr.X, bandwith)
   dvarY <- distcov(Y, Y, affine, bias_corr, type.Y, type.Y, metr.Y, metr.Y, bandwith)
 
