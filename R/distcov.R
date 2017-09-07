@@ -142,12 +142,110 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample", t
   return(dcov)
 }
 
-distvar(X, affine = FALSE, bias_corr = FALSE, type = "sample", metr = "euclidean", bandwidth = 1)
+distvar <- function(X, affine = FALSE, bias_corr = TRUE, type = "sample", metr = "euclidean", bandwidth = 1){
+  ## extract dimensions and sample size
+
+  n <- nrow(as.matrix(X))
+
+
+  p <- ncol(as.matrix(X))
+
+  ## normalize samples if calculation of affinely invariant distance covariance is desired
+  if (affine == TRUE)
+  {
+    if (p > n)
+    {return("Affinely invariant distance covariance cannot be calculated for p>n")}
+
+    if (type.X == "distance" | type.Y == "distance")
+    {return("Affinely invariant distance covariance cannot be calculated for type distance")}
+
+    if(p > 1) {X <- X %*% solve(mroot(var(X)))} else {X <- X / sd(X)}
+    if(q > 1) {Y <- Y %*% solve(mroot(var(Y)))} else {Y <- Y / sd(Y)}
+  }
+
+
+  ## if distance matrix is given
+
+  if (type == "distance")
+  {
+    distX <- X
+  }
+
+  ## if sample is given
+  if (type == "sample") {
+    if (metr == "euclidean") {
+      distX <- Dist(X)
+    } else if (metr == "gaussian") {
+      distX <- 1 - gausskernel(X, sigma = bandwith)
+    } else if (metr.X == "discrete") {
+      distX <- 1 * (Dist(X) > 0)
+    } else {
+      if (p == 1) {
+        distX <- outer(1:n, 1:n,  function(i, j) Vectorize(match.fun(metr.X))(X[i], X[j]))
+      }
+      else {
+        distX <- matrix(ncol = n, nrow = n)
+        for (i in 1:n) {
+          for (j in i:n) {
+            distX[i, j] <- distX[j, i] <- match.fun(metr.X)(X[i, ], X[j, ])
+          }
+        }
+      }
+    }
+  }
+
+
+  ##calculate rowmeans
+  cmX <- colmeans(distX)
+
+
+  ##calculate means of total matrix
+  mX <- .Internal(mean(cmX))
+
+
+  ## Centered distance matrices
+  #A <- normalize_matrix(distX, cmX, mX)
+  #B <- normalize_matrix(distY, cmY, mY)
+
+  ## Bias correction if desired
+  #if (bias_corr == TRUE) {
+  #  A <- n / (n - 1) * (A - distX / n)
+  #  B <- n / (n - 1) * (B - distY / n)
+  #  diag(A) <- n / (n - 1) * (diag(cmX) - mX)
+  #  diag(B) <- n / (n - 1) * (diag(cmY) - mY)
+  #}
+
+  #dcov2 <-matrix.sum(A*B)/{n ^ 2}
+
+  if (bias_corr == TRUE)
+  {
+    term1 <-  matrix.sum(distX^2) / (n * (n-3))
+    term2 <-  (n^4*mX^2) / (n * (n-1) * (n-2) * (n-3))
+    term3 <- (n^2*sum(cmX^2)) / (n*(n-2) * (n-3))
+    dvar2 <- term1+term2-2*term3
+  }
+
+
+  if (bias_corr == FALSE)
+  {
+    term1 <-  matrix.sum(distX^2) / (n^2)
+    term2 <-  mX^2
+    term3 <- sum(cmX^2) / (n)
+    dvar2 <- term1+term2-2*term3
+  }
+
+
+  ## distance covariance (alternative construction if dcov2 is negative due to bias correction)
+  dvar <- sqrt(abs(dvar2)) * sign(dvar2)
+  return(dvar)
+
+
+}
 
 
 distcorr <- function(X, Y, affine = FALSE, bias_corr = FALSE, type.X = "sample", type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean", bandwidth = 1) {
-  dvarX <- distcov(X, X, affine, bias_corr, type.X, type.X, metr.X, metr.X, bandwith)
-  dvarY <- distcov(Y, Y, affine, bias_corr, type.Y, type.Y, metr.Y, metr.Y, bandwith)
+  dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwith)
+  dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwith)
 
   res <- ifelse(dvarX * dvarY == 0, 0, distcov(X, Y, affine, bias_corr, type.X, type.Y, metr.X, metr.Y, bandwith) / sqrt(dvarX * dvarY))
   return (res)
