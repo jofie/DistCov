@@ -15,15 +15,45 @@ NumericMatrix normalize_matrix(NumericMatrix & M, NumericVector & cmM, double & 
 
 // [[Rcpp::export]]
 NumericMatrix hadamard_product(NumericMatrix & X, NumericMatrix & Y){
-  unsigned int ncol = X.ncol();
-  unsigned int nrow = X.nrow();
-  int counter = 0;
-  for (unsigned int j=0; j<ncol; j++) {
-    for (unsigned int i=0; i<nrow; i++)  {
-      X[counter++] *= Y(i, j);
-    }
+  unsigned int n = X.size();
+  unsigned int counter1 = 0;
+  unsigned int counter2 = 0;
+  for (unsigned int j=0; j < n; j++) {
+      X[counter1++] *= Y[counter2++];
   }
   return X;
+}
+
+// [[Rcpp::export]]
+NumericVector vector_product(NumericVector & X, NumericVector & Y){
+  unsigned int n = X.size();
+  int counter = 0;
+  for (unsigned int j=0; j<n; j++) {
+    X[counter++] *= Y[j];
+  }
+  return X;
+}
+
+// [[Rcpp::export]]
+double matrix_prod_sum(const NumericMatrix X, const NumericMatrix Y){
+    unsigned int n = X.nrow();
+    double res = 0;
+    for (unsigned int j = 0; j < n; j++) {
+      for (unsigned int i = j; i < n; i++) {
+       res += X(i, j) * Y(i, j);
+      }
+  }
+  return 2 * res;
+}
+
+// [[Rcpp::export]]
+double vector_prod_sum(const NumericVector X, const NumericVector Y){
+    unsigned int n = X.size();
+    double res = 0;
+    for (unsigned int j = 0; j < n; j++) {
+        res += X[j] * Y[j];
+    }
+    return res;
 }
 
 

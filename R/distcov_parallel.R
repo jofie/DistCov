@@ -11,7 +11,7 @@
 #' @param bandwidth currently not implemented.
 #' @return numeric giving the distance covariance between samples X and Y.
 #' @export
-distcov <-
+distcov_parallel <-
   function(X,
            Y,
            affine = FALSE,
@@ -75,7 +75,7 @@ distcov <-
     ## if sample is given
     if (type.X == "sample") {
       if (metr.X == "euclidean") {
-        distX <- Dist(X)
+        distX <- rcpp_parallel_distance(X)
       } else if (metr.X == "gaussian") {
         distX <- 1 - gausskernel(X, sigma = bandwidth)
       } else if (metr.X == "discrete") {
@@ -105,7 +105,7 @@ distcov <-
     ## if sample is given
     if (type.Y == "sample") {
       if (metr.Y == "euclidean") {
-        distY <- Dist(Y)
+        distY <- rcpp_parallel_distance(Y)
       } else if (metr.Y == "gaussian") {
         distY <- 1 - gausskernel(Y, sigma = bandwidth)
       } else if (metr.X == "discrete") {
@@ -126,8 +126,8 @@ distcov <-
       }
     }
     ##calculate rowmeans
-    cmX <- colmeans(distX)
-    cmY <- colmeans(distY)
+    cmX <- rcpp_parallel_colsums(distX) / n
+    cmY <- rcpp_parallel_colsums(distY) / n
 
     ##calculate means of total matrix
     mX <- .Internal(mean(cmX))
@@ -171,7 +171,7 @@ distcov <-
 #' @return numeric giving the distance correlation between samples X and Y.
 #' @export
 
-distcorr <-
+distcorr_parallel <-
   function(X,
            Y,
            affine = FALSE,
@@ -349,7 +349,7 @@ distcorr <-
 #' @return numeric giving the distance variance of the sample X..
 #' @export
 
-distvar <-
+distvar_parallel <-
   function(X,
            affine = FALSE,
            bias_corr = TRUE,

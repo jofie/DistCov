@@ -8,15 +8,15 @@ distvar(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
   metr.X = "euclidean", bandwidth = 1)
 }
 \arguments{
-\item{X}{contains either the first sample or its corresponding distance matrix. 
+\item{X}{contains either the first sample or its corresponding distance matrix.
 
-In the first case, this input can be either a vector of positive length, 
+In the first case, this input can be either a vector of positive length,
 
-a matrix with one column or a data.frame with one column. 
+a matrix with one column or a data.frame with one column.
 
-In this case, type.X must be specified as "sample". 
+In this case, type.X must be specified as "sample".
 
-In the second case, the input must be a distance matrix corresponding to the sample of interest. 
+In the second case, the input must be a distance matrix corresponding to the sample of interest.
 
 In this second case, type.X must be "distance".}
 

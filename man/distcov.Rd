@@ -2,7 +2,7 @@
 % Please edit documentation in R/distcov.R
 \name{distcov}
 \alias{distcov}
-\title{Calculate the distance covariance}
+\title{Calculate the distance covariance 1}
 \usage{
 distcov(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
   type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
@@ -31,5 +31,5 @@ distcov(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 numeric giving the distance covariance between samples X and Y.
 }
 \description{
-Calculate the distance covariance
+Calculate the distance covariance 1
 }

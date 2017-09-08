@@ -21,3 +21,31 @@ hadamard_product <- function(X, Y) {
     .Call('_DistCov_hadamard_product', PACKAGE = 'DistCov', X, Y)
 }
 
+vector_product <- function(X, Y) {
+    .Call('_DistCov_vector_product', PACKAGE = 'DistCov', X, Y)
+}
+
+matrix_prod_sum <- function(X, Y) {
+    .Call('_DistCov_matrix_prod_sum', PACKAGE = 'DistCov', X, Y)
+}
+
+vector_prod_sum <- function(X, Y) {
+    .Call('_DistCov_vector_prod_sum', PACKAGE = 'DistCov', X, Y)
+}
+
+rcpp_parallel_distance <- function(vec) {
+    .Call('_DistCov_rcpp_parallel_distance', PACKAGE = 'DistCov', vec)
+}
+
+rcpp_parallel_colsums <- function(mat) {
+    .Call('_DistCov_rcpp_parallel_colsums', PACKAGE = 'DistCov', mat)
+}
+
+rcpp_parallel_prod_sum <- function(dist1, dist2) {
+    .Call('_DistCov_rcpp_parallel_prod_sum', PACKAGE = 'DistCov', dist1, dist2)
+}
+
+parallelVectorSum <- function(x) {
+    .Call('_DistCov_parallelVectorSum', PACKAGE = 'DistCov', x)
+}
+
