@@ -8,12 +8,12 @@ distcov_fast <- function(X, Y) {
     n <- length(X)
     temp <- IX <- IY <- 1:n
 
-    vX <- Sort(X)
     IX0 <- sort_index(X) + 1
+    vX <- X[IX0]
     IX[IX0] <- temp
 
-    vY <- Sort(Y)
     IY0 <- sort_index(Y) + 1
+    vY <- Y[IY0]
     IY[IY0] <- temp
 
 
@@ -42,6 +42,44 @@ distcov_fast <- function(X, Y) {
     dCov <- aijbij / n / (n - 3) - 2 * Sab / n / (n - 2) / (n - 3) + adotdot * bdotdot / n / (n - 1) / (n - 2) / (n - 3)
     return (dCov)
 }
+
+
+#' Calculate an unbiased estimate of the squared distance variance
+#'
+#' @param X numeric vector containing samples
+#' @return double giving the square of the distance covariance
+#' @details The calculation of this estimate is based on the algorithm in Huo 2014, i.e., it gives an unbiased estimate of the square of the distance covariance. The calculation uses U-statistics and requires only O(n log n) calculations.
+distvar_fast <- function(X) {
+    n <- length(X)
+    temp <- IX <- 1:n
+
+    vX <- Sort(X)
+    IX0 <- sort_index(X) + 1
+    IX[IX0] <- temp
+
+
+    sX <- cumsum(vX)
+    alphaX <- IX - 1
+    betaX <- sX[IX] - vX[IX]
+    Xdot <- sum(X)
+
+    aidot <- Xdot + (2 * alphaX - n) * X - 2 * betaX
+    Saa <- sum(aidot^2)
+
+    adotdot <- 2 * sum(alphaX * X) - 2 * sum(betaX)
+
+    gamma_1  <- PartialSum2D(X, X, rep(1, n))
+    gamma_X  <- PartialSum2D(X, X, X)
+    gamma_XX <- PartialSum2D(X, X, X * X)
+
+    aijaij <- sum(X^2 * gamma_1 + gamma_XX - X * gamma_X - X * gamma_X)
+    dVar <- aijaij / n / (n - 3) - 2 * Saa / n / (n - 2) / (n - 3) + adotdot * adotdot / n / (n - 1) / (n - 2) / (n - 3)
+    return (dVar)
+}
+
+
+
+
 
 #' Calculate partial sums
 #'

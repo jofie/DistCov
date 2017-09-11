@@ -15,27 +15,26 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                     type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
                     bandwidth = 1) {
 
-    ## extract dimensions and sample size
-    if (type.X == "sample" && type.Y == "sample") {
-      n <- length(X)
-      m <- length(Y)
-    } else {
-      n <- nrow(as.matrix(X))
-      m <- nrow(as.matrix(Y))
-    }
+    #extract dimensions and sample sizes
+    ss.dimX <- extract_np(X,type.X)
+    ss.dimY <- extract_np(Y,type.Y)
+
+    n <- ss.dimX$Sample.Size
+    p <- ss.dimX$Dimension
+
+    m <- ss.dimY$Sample.Size
+    q <- ss.dimY$Dimension
 
     if (n != m) {
       stop("Samples X and Y must have the same sizes!")
     }
     if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
-        metr.X == "euclidean" && metr.Y == "euclidean" && n > 175) {
+        metr.X == "euclidean" && metr.Y == "euclidean" && n > 175 && p==1L && q==1L) {
         dcov2 <- distcov_fast(X, Y)
         dcov <- sqrt(abs(dcov2)) * sign(dcov2)
         return(dcov)
     }
 
-    p <- ncol(as.matrix(X))
-    q <- ncol(as.matrix(Y))
 
     ## normalize samples if calculation of affinely invariant distance covariance is desired
     if (affine == TRUE) {
@@ -61,61 +60,21 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     ## if distance matrix is given
     if (type.X == "distance") {
       distX <- X
+    } else {
+
+        distX <- distmat(X,metr.X,n)
     }
 
-    ## if sample is given
-    if (type.X == "sample") {
-      if (metr.X == "euclidean") {
-        distX <- Dist(X)
-      } else if (metr.X == "gaussian") {
-        distX <- 1 - gausskernel(X, sigma = bandwidth)
-      } else if (metr.X == "discrete") {
-        distX <- 1 * (Dist(X) > 0)
-      } else {
-        if (p == 1) {
-          distX <-
-            outer(1:n, 1:n,  function(i, j)
-              Vectorize(match.fun(metr.X))(X[i], X[j]))
-        }
-        else {
-          distX <- matrix(ncol = n, nrow = n)
-          for (i in 1:n) {
-            for (j in i:n) {
-              distX[i, j] <- distX[j, i] <- match.fun(metr.X)(X[i,], X[j,])
-            }
-          }
-        }
-      }
-    }
+
+
 
     ## if distance matrix is given
     if (type.Y == "distance") {
       distY <- Y
+    }else {
+            distY <- distmat(Y,metr.Y,m)
     }
 
-    ## if sample is given
-    if (type.Y == "sample") {
-      if (metr.Y == "euclidean") {
-        distY <- Dist(Y)
-      } else if (metr.Y == "gaussian") {
-        distY <- 1 - gausskernel(Y, sigma = bandwidth)
-      } else if (metr.X == "discrete") {
-        distY <- 1 * (Dist(Y) > 0)
-      } else {
-        if (q == 1) {
-          distY <-
-            outer(1:n, 1:n,  function(i, j)
-              Vectorize(match.fun(metr.Y))(Y[i], Y[j]))
-        } else {
-          distY <- matrix(ncol = n, nrow = n)
-          for (i in 1:n) {
-            for (j in i:n) {
-              distY[i, j] <- distY[j, i] <- match.fun(metr.Y)(Y[i,], Y[j,])
-            }
-          }
-        }
-      }
-    }
     ##calculate rowmeans
     cmX <- colmeans(distX)
     cmY <- colmeans(distY)
@@ -164,22 +123,22 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                      type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
                      bandwidth = 1) {
 
+    #extract dimensions and sample sizes
+    ss.dimX <- extract_np(X,type.X)
+    ss.dimY <- extract_np(Y,type.Y)
 
-    ## extract dimensions and sample size
-    if (type.X == "sample" && type.Y == "sample") {
-        n <- length(X)
-        m <- length(Y)
-    } else {
-        n <- nrow(as.matrix(X))
-        m <- nrow(as.matrix(Y))
-    }
+    n <- ss.dimX$Sample.Size
+    p <- ss.dimX$Dimension
+
+    m <- ss.dimY$Sample.Size
+    q <- ss.dimY$Dimension
 
     if (n != m) {
         stop("Samples X and Y must have the same sizes!")
     }
 
     if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
-        metr.X == "euclidean" && metr.Y == "euclidean" && n > 175) {
+        metr.X == "euclidean" && metr.Y == "euclidean" && n > 175 && p==1L && q==1L) {
             dcov2 <- distcov_fast(X, Y)
             dvarX2 <- distcov_fast(X, X)
             dvarY2 <- distcov_fast(Y, Y)
@@ -188,8 +147,6 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
             return(dcorr)
     }
 
-    p <- ncol(as.matrix(X))
-    q <- ncol(as.matrix(Y))
 
     ## normalize samples if calculation of affinely invariant distance covariance is desired
     if (affine == TRUE) {
@@ -212,64 +169,24 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     }
 
 
+
     ## if distance matrix is given
     if (type.X == "distance") {
         distX <- X
+    } else {
+
+        distX <- distmat(X,metr.X,n)
     }
 
-    ## if sample is given
-    if (type.X == "sample") {
-        if (metr.X == "euclidean") {
-            distX <- Dist(X)
-        } else if (metr.X == "gaussian") {
-            distX <- 1 - gausskernel(X, sigma = bandwidth)
-        } else if (metr.X == "discrete") {
-            distX <- 1 * (Dist(X) > 0)
-        } else {
-            if (p == 1) {
-                distX <-
-                    outer(1:n, 1:n,  function(i, j)
-                        Vectorize(match.fun(metr.X))(X[i], X[j]))
-            }
-            else {
-                distX <- matrix(ncol = n, nrow = n)
-                for (i in 1:n) {
-                    for (j in i:n) {
-                        distX[i, j] <- distX[j, i] <- match.fun(metr.X)(X[i, ], X[j, ])
-                    }
-                }
-            }
-        }
-    }
+
 
     ## if distance matrix is given
     if (type.Y == "distance") {
         distY <- Y
+    } else {
+        distY <- distmat(Y,metr.Y,m)
     }
 
-    ## if sample is given
-    if (type.Y == "sample") {
-        if (metr.Y == "euclidean") {
-            distY <- Dist(Y)
-        } else if (metr.Y == "gaussian") {
-            distY <- 1 - gausskernel(Y, sigma = bandwidth)
-        } else if (metr.X == "discrete") {
-            distY <- 1 * (Dist(Y) > 0)
-        } else {
-            if (q == 1) {
-                distY <-
-                    outer(1:n, 1:n,  function(i, j)
-                        Vectorize(match.fun(metr.Y))(Y[i], Y[j]))
-            } else {
-                distY <- matrix(ncol = n, nrow = n)
-                for (i in 1:n) {
-                    for (j in i:n) {
-                        distY[i, j] <- distY[j, i] <- match.fun(metr.Y)(Y[i, ], Y[j, ])
-                    }
-                }
-            }
-        }
-    }
     ##calculate rowmeans
     cmX <- colmeans(distX)
     cmY <- colmeans(distY)
@@ -329,24 +246,21 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                              metr.X = "euclidean", bandwidth = 1) {
 
-    ## extract dimensions and sample size
-    if (type.X == "sample") {
-        n <- length(X)
-    } else {
-        n <- nrow(as.matrix(X))
-    }
+    #extract dimensions and sample sizes
+    ss.dimX <- extract_np(X,type.X)
+
+    n <- ss.dimX$Sample.Size
+    p <- ss.dimX$Dimension
 
     if (bias_corr == TRUE &&
         type.X == "sample" &&
-        metr.X == "euclidean" && n > 175) {
-        dvar2 <- distcov_fast(X, X)
-        dcorr <- sqrt(abs(dvar2)) * sign(dvar2)
-        return(dcorr)
+        metr.X == "euclidean" && n > 175 && p==1L && q==1L) {
+        dvar2 <- distvar_fast(X)
+        dvar <- sqrt(abs(dvar2)) * sign(dvar2)
+        return(dvar)
     }
 
-    p <- ncol(as.matrix(X))
-
-    ## normalize samples if calculation of affinely invariant distance covariance is desired
+      ## normalize samples if calculation of affinely invariant distance covariance is desired
     if (affine == TRUE) {
         if (p > n) {
             stop("Affinely invariant distance variance cannot be calculated for p>n")
@@ -365,35 +279,12 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     ## if distance matrix is given
     if (type.X == "distance") {
         distX <- X
-    }
-
-    ## if sample is given
-    if (type.X == "sample") {
-        if (metr.X == "euclidean") {
-            distX <- rcpp_parallel_distance(X)
-        } else if (metr.X == "gaussian") {
-            distX <- 1 - gausskernel(X, sigma = bandwidth)
-        } else if (metr.X == "discrete") {
-            distX <- 1 * (Dist(X) > 0)
-        } else {
-            if (p == 1) {
-                distX <-
-                    outer(1:n, 1:n,  function(i, j)
-                        Vectorize(match.fun(metr.X))(X[i], X[j]))
-            }
-            else {
-                distX <- matrix(ncol = n, nrow = n)
-                for (i in 1:n) {
-                    for (j in i:n) {
-                        distX[i, j] <- distX[j, i] <- match.fun(metr.X)(X[i,], X[j,])
-                    }
-                }
-            }
-        }
+    } else {
+        distX <- distmat(X,metr.X,n)
     }
 
     ##calculate rowmeans
-    cmX <- rcpp_parallel_colsums(distX)
+    cmX <- colmeans(distX)
 
     ##calculate means of total matrix
     mX <- .Internal(mean(cmX))
@@ -427,3 +318,78 @@ mroot <- function(A) {
     B <- V %*% diag(sqrt(e$values)) %*% t(V)
     return(B)
 }
+
+
+
+distmat <- function(X,metr.X="euclidean",n)
+{
+    if (metr.X == "euclidean") {
+        distX <- Dist(X)
+    } else if (metr.X == "gaussian") {
+        distX <- 1 - gausskernel(X, sigma = bandwidth)
+    } else if (metr.X == "discrete") {
+        distX <- 1 * (Dist(X) > 0)
+    } else {
+        if (p == 1) {
+            distX <-
+                outer(1:n, 1:n,  function(i, j)
+                    Vectorize(match.fun(metr.X))(X[i], X[j]))
+        }
+        else {
+            distX <- matrix(ncol = n, nrow = n)
+            for (i in 1:n) {
+                for (j in i:n) {
+                    distX[i, j] <- distX[j, i] <- match.fun(metr)(X[i,], X[j,])
+                }
+            }
+        }
+    }
+    return(distX)
+  }
+
+
+centmat <- function(X,metr.X="euclidean",type.X="sample",bias_corr=TRUE,n) {
+    ## if distance matrix is given
+    if (type.X == "distance") {
+        distX <- X
+    } else {
+
+        distX <- distmat(X,metr.X,n)
+    }
+    cmX <- colmeans(distX)
+    mX <- .Internal(mean(cmX))
+
+    if (bias_corr==TRUE) {
+        cmX <- n * cmX / (n-2)
+        mX  <- n^2 * mX / (n-1) / (n-2)
+    }
+
+    res <- normalize_matrix(distX,cmX,mX)
+
+    if (bias_corr==TRUE) {
+        diag(res) <- rep(0,n)
+        res <- sqrt(n/(n-3))*res
+    }
+
+    return(res)
+}
+
+
+extract_np <- function(X,type.X) {
+    if (type.X=="sample") {
+        if (is.vector(X))
+        {
+         n <- length(X)
+         p <- 1L
+         } else if (is.matrix(X)) {
+        n <- nrow(X)
+        p <- ncol(X)
+         } else {return("X must be a vector or matrix for type sample")}
+  } else if (type.X=="distance") {if (is.matrix(X)) {
+        n <- nrow(X)
+        p <- 1L
+     } else {return("X must be a matrix for type distance")}
+  }
+    return(list("Sample.Size"=n,"Dimension"=p))
+}
+

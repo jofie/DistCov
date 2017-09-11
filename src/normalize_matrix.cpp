@@ -8,10 +8,12 @@ NumericMatrix normalize_matrix(NumericMatrix & M, NumericVector & cmM, double & 
   unsigned int ncol = M.ncol();
   for (unsigned int n = 0; n < ncol; ++n) {
     M.row(n) = M.row(n) - cmM;
-    M.column(n) = M.column(n) - cmM + m;
+    M.column(n) = M.column(n) - cmM + mM;
   }
   return M;
 }
+
+
 
 // [[Rcpp::export]]
 NumericMatrix hadamard_product(NumericMatrix & X, NumericMatrix & Y){
@@ -39,7 +41,7 @@ double matrix_prod_sum(const NumericMatrix X, const NumericMatrix Y){
     unsigned int n = X.nrow();
     double res = 0;
     for (unsigned int j = 0; j < n; j++) {
-      for (unsigned int i = j; i < n; i++) {
+      for (unsigned int i = (j+1); i < n; i++) {
        res += X(i, j) * Y(i, j);
       }
   }
