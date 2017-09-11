@@ -29,7 +29,7 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
       stop("Samples X and Y must have the same sizes!")
     }
     if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
-        metr.X == "euclidean" && metr.Y == "euclidean" && n > 175 && p==1L && q==1L) {
+        metr.X == "euclidean" && metr.Y == "euclidean" && n > 1000 && p==1L && q==1L) {
         dcov2 <- distcov_fast(X, Y)
         dcov <- sqrt(abs(dcov2)) * sign(dcov2)
         return(dcov)
@@ -62,7 +62,7 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
       distX <- X
     } else {
 
-        distX <- distmat(X,metr.X,n)
+        distX <- distmat(X,metr.X,n,p)
     }
 
 
@@ -72,7 +72,7 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.Y == "distance") {
       distY <- Y
     }else {
-            distY <- distmat(Y,metr.Y,m)
+            distY <- distmat(Y,metr.Y,m,q)
     }
 
     ##calculate rowmeans
@@ -175,7 +175,7 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         distX <- X
     } else {
 
-        distX <- distmat(X,metr.X,n)
+        distX <- distmat(X,metr.X,n,p)
     }
 
 
@@ -184,7 +184,7 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.Y == "distance") {
         distY <- Y
     } else {
-        distY <- distmat(Y,metr.Y,m)
+        distY <- distmat(Y,metr.Y,m,q)
     }
 
     ##calculate rowmeans
@@ -280,7 +280,7 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.X == "distance") {
         distX <- X
     } else {
-        distX <- distmat(X,metr.X,n)
+        distX <- distmat(X,metr.X,n,p)
     }
 
     ##calculate rowmeans
@@ -321,7 +321,7 @@ mroot <- function(A) {
 
 
 
-distmat <- function(X,metr.X="euclidean",n)
+distmat <- function(X,metr.X="euclidean",n,p)
 {
     if (metr.X == "euclidean") {
         distX <- Dist(X)
@@ -348,13 +348,13 @@ distmat <- function(X,metr.X="euclidean",n)
   }
 
 
-centmat <- function(X,metr.X="euclidean",type.X="sample",bias_corr=TRUE,n) {
+centmat <- function(X,metr.X="euclidean",type.X="sample",bias_corr=TRUE,n,p) {
     ## if distance matrix is given
     if (type.X == "distance") {
         distX <- X
     } else {
 
-        distX <- distmat(X,metr.X,n)
+        distX <- distmat(X,metr.X,n,p)
     }
     cmX <- colmeans(distX)
     mX <- .Internal(mean(cmX))
