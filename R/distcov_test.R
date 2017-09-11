@@ -66,7 +66,7 @@ distcov.test <- function(X,Y,test="permutation",b=499L,seed=NULL,affine=FALSE,bi
 
 
         if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
-            metr.X == "euclidean" && metr.Y == "euclidean" && n > 500 && p==1L && q==1L) {
+            metr.X == "euclidean" && metr.Y == "euclidean" && n > 1e4 && p==1L && q==1L) {
             temp <- IX <- IY  <- 1:n
 
             IX0 <- sort_index(X) + 1
