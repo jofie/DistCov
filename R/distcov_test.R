@@ -143,10 +143,10 @@ distcov.test <- function(X,Y,test="permutation",b=499L,seed=NULL,affine=FALSE,bi
 
             dcov <- sign(dcov2) * sqrt(abs(dcov2))
 
-            samples <- lapply(1:b, function(t) {.Internal(sample(n, n, FALSE, NULL))})
+            #samples <- lapply(1:b, function(t) {.Internal(sample(n, n, FALSE, NULL))})
 
-            reps <- sapply(1:b, function(t) {B_samp <- B[samples[[t]],samples[[t]]]
-                                     res2 <- matrix_prod_sum(A , B_samp) / n^2
+            reps <- sapply(1:b, function(t) {sample <- .Internal(sample(n, n, FALSE, NULL))
+                                     res2 <- matrix_prod_sum_sample(A , B, sample) / n^2
                                      return(sign(res2) * sqrt(abs(res2)))
                             })
 
