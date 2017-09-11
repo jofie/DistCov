@@ -134,8 +134,8 @@ distcov.test <- function(X,Y,test="permutation",b=499L,seed=NULL,affine=FALSE,bi
 
         }  else {
 
-            A <- centmat(X,metr.X,type.X,bias_corr,n)
-            B <- centmat(Y,metr.Y,type.Y,bias_corr,n)
+            A <- centmat(X,metr.X,type.X,bias_corr,n,p)
+            B <- centmat(Y,metr.Y,type.Y,bias_corr,n,q)
             if (bias_corr==TRUE) {
                 dcov2 <- matrix_prod_sum(A , B) / n^2
             } else {dcov2 <-(matrix_prod_sum(A , B) + vector_prod_sum(diag(A),diag(B))) / n^2}
