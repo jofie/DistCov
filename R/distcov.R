@@ -1,4 +1,4 @@
-#' Calculate the distance covariance 1
+#' Calculate the distance covariance
 #'
 #' @param X contains either the first sample or its corresponding distance matrix. In the first case, this input can be either a vector of positive length, a matrix with one column or a data.frame with one column. In this case, type.X must be specified as "sample". In the second case, the input must be a distance matrix corresponding to the sample of interest. In this second case, type.X must be "distance".
 #' @param Y see X.
@@ -9,11 +9,16 @@
 #' @param metr.X specifies the metric which should be used for X to analyse the distance covariance. TO DO: Provide details for this.
 #' @param metr.Y see metr.X.
 #' @param bandwidth currently not implemented.
+#' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return numeric giving the distance covariance between samples X and Y.
 #' @export
 distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                     type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
-                    bandwidth = 1) {
+                    bandwidth = 1, use="all") {
+
+
+
+
 
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X,type.X)
@@ -28,6 +33,26 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (n != m) {
       stop("Samples X and Y must have the same sizes!")
     }
+
+    if  (use=="complete.obs") {
+        ccX <- ccY <- cc <- 1:n
+        if (type.X=="sample") {
+            ccX <- which(complete.cases(X))}
+        if (type.Y=="sample") {
+            ccY <- which(complete.cases(Y))}
+        cc <- intersect(ccX,ccY)
+        if (type.X=="sample" && p==1) {
+            X <- X[cc]} else if (type.X=="sample" && p>1) {
+            X <- X[cc,]
+            }
+        if (type.Y=="sample" && p==1) {
+            Y <- Y[cc]} else if (type.X=="sample" && p>1) {
+                Y <- Y[cc,]
+            }
+        n <- m <- length(cc)
+    }
+
+
     if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
         metr.X == "euclidean" && metr.Y == "euclidean" && n > 1000 && p==1L && q==1L) {
         dcov2 <- distcov_fast(X, Y)
@@ -62,7 +87,7 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
       distX <- X
     } else {
 
-        distX <- distmat(X,metr.X,n,p)
+        distX <- distmat(X,metr.X,alpha,n,p)
     }
 
 
@@ -72,7 +97,7 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.Y == "distance") {
       distY <- Y
     }else {
-            distY <- distmat(Y,metr.Y,m,q)
+            distY <- distmat(Y,metr.Y,alpha,m,q)
     }
 
     ##calculate rowmeans
@@ -116,12 +141,13 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 #' @param metr.X specifies the metric which should be used for X to analyse the distance correlation. TO DO: Provide details for this.
 #' @param metr.Y see metr.X.
 #' @param bandwidth currently not implemented.
+#' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return numeric giving the distance correlation between samples X and Y.
 #' @export
 
 distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                      type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
-                     bandwidth = 1) {
+                     bandwidth = 1,use="all") {
 
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X,type.X)
@@ -132,6 +158,25 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 
     m <- ss.dimY$Sample.Size
     q <- ss.dimY$Dimension
+
+    if  (use=="complete.obs") {
+        ccX <- ccY <- cc <- 1:n
+        if (type.X=="sample") {
+            ccX <- which(complete.cases(X))}
+        if (type.Y=="sample") {
+            ccY <- which(complete.cases(Y))}
+        cc <- intersect(ccX,ccY)
+        if (type.X=="sample" && p==1) {
+            X <- X[cc]} else if (type.X=="sample" && p>1) {
+                X <- X[cc,]
+            }
+        if (type.Y=="sample" && p==1) {
+            Y <- Y[cc]} else if (type.X=="sample" && p>1) {
+                Y <- Y[cc,]
+            }
+        n <- m <- length(cc)
+    }
+
 
     if (n != m) {
         stop("Samples X and Y must have the same sizes!")
@@ -200,8 +245,8 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         term2 <- n ^ 4 * mX * mY / n / (n - 1) / (n - 2) / (n - 3)
         term3 <- n ^ 2 * sum(vector_product(cmX,  cmY)) / n / (n - 2) / (n - 3)
         dcov2 <- term1 + term2 - 2 * term3
-        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth)
-        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth)
+        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth,use="all")
+        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth,use="all")
         dcorr2 <- dcov2 / dvarX / dvarY
     }
 
@@ -211,8 +256,8 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         term2 <- mX * mY
         term3 <- sum(vector_product(cmX, cmY)) / n
         dcov2 <- term1 + term2 - 2 * term3
-        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth)
-        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth)
+        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth,use="all")
+        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth,use="all")
         dcorr2 <- dcov2 / dvarX / dvarY
     }
 
@@ -241,10 +286,11 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 #' @param type.X either "sample" or "distance"; specifies the type of input for X.
 #' @param metr.X specifies the metric which should be used for X to analyse the distance variance TO DO: Provide details for this.
 #' @param bandwidth currently not implemented.
+#' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return numeric giving the distance variance of the sample X..
 #' @export
 distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
-                             metr.X = "euclidean", bandwidth = 1) {
+                             metr.X = "euclidean", bandwidth = 1,use="all") {
 
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X,type.X)
@@ -252,9 +298,21 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     n <- ss.dimX$Sample.Size
     p <- ss.dimX$Dimension
 
+    if  (use=="complete.obs") {
+        ccX <-  1:n
+        if (type.X=="sample") {
+            ccX <- which(complete.cases(X))}
+            if (type.X=="sample" && p==1) {
+            X <- X[ccX]} else if (type.X=="sample" && p>1) {
+            X <- X[ccX,]
+            }
+        n <- length(ccX)
+    }
+
+
     if (bias_corr == TRUE &&
         type.X == "sample" &&
-        metr.X == "euclidean" && n > 175 && p==1L && q==1L) {
+        metr.X == "euclidean" && n > 175 && p==1L) {
         dvar2 <- distvar_fast(X)
         dvar <- sqrt(abs(dvar2)) * sign(dvar2)
         return(dvar)
@@ -321,7 +379,7 @@ mroot <- function(A) {
 
 
 
-distmat <- function(X,metr.X="euclidean",n,p)
+distmat <- function(X,metr.X="euclidean",alpha=1,n,p)
 {
     if (metr.X == "euclidean") {
         distX <- Dist(X)
@@ -354,7 +412,7 @@ centmat <- function(X,metr.X="euclidean",type.X="sample",bias_corr=TRUE,n,p) {
         distX <- X
     } else {
 
-        distX <- distmat(X,metr.X,n,p)
+        distX <- distmat(X,metr.X,alpha,n,p)
     }
     cmX <- colmeans(distX)
     mX <- .Internal(mean(cmX))

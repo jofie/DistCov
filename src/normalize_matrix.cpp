@@ -74,3 +74,12 @@ double matrix_prod_sum_sample(const NumericMatrix X, const NumericMatrix Y,const
 
 
 
+// [[Rcpp::export]]
+double vector_prod_sum_sample(const NumericVector X, const NumericVector Y,const NumericVector s){
+    unsigned int n = X.size();
+    double res = 0;
+    for (unsigned int j = 0; j < n; j++) {
+        res += X[j] * Y[s[j]];
+    }
+    return res;
+}

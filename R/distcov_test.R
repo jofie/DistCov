@@ -4,7 +4,6 @@
 #' @param Y see X.
 #' @param test specifies the type of test that is performed, "permutation" performs a Monte Carlo Permutation test. "gamma" performs a test based on a gamma approximation of the test statistic under the null.
 #' @param b specifies the number of random permutations used for the permutation test. Ignored when test="gamma"
-#' @param optionally: sets a seed for the permutation test
 #' @param affine logical; indicates if the affinely transformed distance covariance should be calculated or not.
 #' @param bias_corr logical; indicates if the bias corrected version of the sample distance covariance should be calculated, currently ignored when test="gamma"
 #' @param type.X either "sample" or "distance"; specifies the type of input for X.
@@ -12,11 +11,22 @@
 #' @param metr.X specifies the metric which should be used for X to analyse the distance covariance. TO DO: Provide details for this.
 #' @param metr.Y see metr.X.
 #' @param bandwidth currently not implemented.
+#' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return list with two elements, dcov gives the distance covariance between X and Y, pval gives the p-value of the corresponding test
 #' @export
 
-distcov.test <- function(X,Y,test="permutation",b=499L,seed=NULL,affine=FALSE,bias_corr = TRUE,type.X="sample",type.Y="sample",metr.X="euclidean",metr.Y="euclidean",bandwidth=1)
-{
+distcov.test <- function(X,
+                         Y,
+                         test="permutation",
+                         b=499L,
+                         affine=FALSE,
+                         bias_corr = TRUE,
+                         type.X="sample",
+                         type.Y="sample",
+                         metr.X="euclidean",
+                         metr.Y="euclidean",
+                         bandwidth=1,
+                         use="all") {
 
 
     #extract dimensions and sample sizes
@@ -31,6 +41,24 @@ distcov.test <- function(X,Y,test="permutation",b=499L,seed=NULL,affine=FALSE,bi
 
     if (n != m) {
         stop("Samples X and Y must have the same sizes!")
+    }
+
+    if  (use=="complete.obs") {
+        ccX <- ccY <- cc <- 1:n
+        if (type.X=="sample") {
+            ccX <- which(complete.cases(X))}
+        if (type.Y=="sample") {
+            ccY <- which(complete.cases(Y))}
+        cc <- intersect(ccX,ccY)
+        if (type.X=="sample" && p==1) {
+            X <- X[cc]} else if (type.X=="sample" && p>1) {
+                X <- X[cc,]
+            }
+        if (type.Y=="sample" && p==1) {
+            Y <- Y[cc]} else if (type.X=="sample" && p>1) {
+                Y <- Y[cc,]
+            }
+        n <- m <- length(cc)
     }
 
 
@@ -60,12 +88,7 @@ distcov.test <- function(X,Y,test="permutation",b=499L,seed=NULL,affine=FALSE,bi
 
     if (test=="permutation") {
 
-        if (!is.null(seed)) {
-        set.seed(seed)
-      }
-
-
-        if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
+           if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
             metr.X == "euclidean" && metr.Y == "euclidean" && n > 1e4 && p==1L && q==1L) {
             temp <- IX <- IY  <- 1:n
 
@@ -146,7 +169,9 @@ distcov.test <- function(X,Y,test="permutation",b=499L,seed=NULL,affine=FALSE,bi
             #samples <- lapply(1:b, function(t) {.Internal(sample(n, n, FALSE, NULL))})
 
             reps <- sapply(1:b, function(t) {sample <- .Internal(sample(n, n, FALSE, NULL))
-                                     res2 <- matrix_prod_sum_sample(A , B, sample) / n^2
+                                            if (bias_corr==TRUE) {
+                                              res2 <- matrix_prod_sum_sample(A , B,sample) / n^2
+                                            } else {res2 <-(matrix_prod_sum_sample(A , B,sample) + vector_prod_sum_sample(diag(A),diag(B),sample)) / n^2}
                                      return(sign(res2) * sqrt(abs(res2)))
                             })
 
@@ -168,7 +193,7 @@ distcov.test <- function(X,Y,test="permutation",b=499L,seed=NULL,affine=FALSE,bi
 
      alpha <- 1/2 * (U2^2 * U3^2) / U1
      beta <- 1/2* (U2 * U3) / U1
-     dcov <- distcov(X,Y,affine=affine,bias_corr = TRUE,type.X=type.X,type.Y=type.Y,metr.X=metr.X,metr.Y=metr.Y,bandwidth=bandwidth)
+     dcov <- distcov(X,Y,affine=affine,bias_corr = TRUE,type.X=type.X,type.Y=type.Y,metr.X=metr.X,metr.Y=metr.Y,bandwidth=bandwidth,use="all")
      stat <- n * sign(dcov) * dcov^2 + U2*U3
      pval <- 1 - pgamma(stat,alpha,beta)
     }
