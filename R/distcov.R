@@ -34,27 +34,31 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
       stop("Samples X and Y must have the same sizes!")
     }
 
-    if  (use=="complete.obs") {
+    if  (use == "complete.obs") {
         ccX <- ccY <- cc <- 1:n
-        if (type.X=="sample") {
-            ccX <- which(complete.cases(X))}
-        if (type.Y=="sample") {
-            ccY <- which(complete.cases(Y))}
-        cc <- intersect(ccX,ccY)
-        if (type.X=="sample" && p==1) {
-            X <- X[cc]} else if (type.X=="sample" && p>1) {
-            X <- X[cc,]
-            }
-        if (type.Y=="sample" && p==1) {
-            Y <- Y[cc]} else if (type.X=="sample" && p>1) {
-                Y <- Y[cc,]
-            }
+        if (type.X == "sample") {
+            ccX <- which(complete.cases(X))
+        }
+        if (type.Y == "sample") {
+            ccY <- which(complete.cases(Y))
+        }
+        cc <- intersect(ccX, ccY)
+        if (type.X == "sample" && p == 1) {
+            X <- X[cc]
+        } else if (type.X == "sample" && p > 1) {
+            X <- X[cc, ]
+        }
+        if (type.Y == "sample" && p == 1) {
+            Y <- Y[cc]
+        } else if (type.X == "sample" && p > 1) {
+            Y <- Y[cc, ]
+        }
         n <- m <- length(cc)
     }
 
 
     if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
-        metr.X == "euclidean" && metr.Y == "euclidean" && n > 1000 && p==1L && q==1L) {
+        metr.X == "euclidean" && metr.Y == "euclidean" && n > 1000 && p == 1L && q == 1L) {
         dcov2 <- distcov_fast(X, Y)
         dcov <- sqrt(abs(dcov2)) * sign(dcov2)
         return(dcov)
@@ -147,7 +151,7 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 
 distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                      type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
-                     bandwidth = 1,use="all") {
+                     bandwidth = 1, use = "all") {
 
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X,type.X)
@@ -159,21 +163,25 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     m <- ss.dimY$Sample.Size
     q <- ss.dimY$Dimension
 
-    if  (use=="complete.obs") {
+    if (use == "complete.obs") {
         ccX <- ccY <- cc <- 1:n
-        if (type.X=="sample") {
-            ccX <- which(complete.cases(X))}
-        if (type.Y=="sample") {
-            ccY <- which(complete.cases(Y))}
-        cc <- intersect(ccX,ccY)
-        if (type.X=="sample" && p==1) {
-            X <- X[cc]} else if (type.X=="sample" && p>1) {
-                X <- X[cc,]
-            }
-        if (type.Y=="sample" && p==1) {
-            Y <- Y[cc]} else if (type.X=="sample" && p>1) {
-                Y <- Y[cc,]
-            }
+        if (type.X == "sample") {
+            ccX <- which(complete.cases(X))
+        }
+        if (type.Y == "sample") {
+            ccY <- which(complete.cases(Y))
+        }
+        cc <- intersect(ccX, ccY)
+        if (type.X == "sample" && p == 1) {
+            X <- X[cc]
+        } else if (type.X == "sample" && p > 1) {
+            X <- X[cc, ]
+        }
+        if (type.Y == "sample" && p == 1) {
+            Y <- Y[cc]
+        } else if (type.X == "sample" && p > 1) {
+            Y <- Y[cc, ]
+        }
         n <- m <- length(cc)
     }
 
@@ -183,7 +191,7 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     }
 
     if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
-        metr.X == "euclidean" && metr.Y == "euclidean" && n > 175 && p==1L && q==1L) {
+        metr.X == "euclidean" && metr.Y == "euclidean" && n > 175 && p == 1L && q == 1L) {
             dcov2 <- distcov_fast(X, Y)
             dvarX2 <- distcov_fast(X, X)
             dvarY2 <- distcov_fast(Y, Y)
@@ -245,8 +253,8 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         term2 <- n ^ 4 * mX * mY / n / (n - 1) / (n - 2) / (n - 3)
         term3 <- n ^ 2 * sum(vector_product(cmX,  cmY)) / n / (n - 2) / (n - 3)
         dcov2 <- term1 + term2 - 2 * term3
-        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth,use="all")
-        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth,use="all")
+        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth, use = "all")
+        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth, use = "all")
         dcorr2 <- dcov2 / dvarX / dvarY
     }
 
@@ -256,8 +264,8 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         term2 <- mX * mY
         term3 <- sum(vector_product(cmX, cmY)) / n
         dcov2 <- term1 + term2 - 2 * term3
-        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth,use="all")
-        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth,use="all")
+        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth, use = "all")
+        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth, use = "all")
         dcorr2 <- dcov2 / dvarX / dvarY
     }
 
@@ -290,7 +298,7 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 #' @return numeric giving the distance variance of the sample X..
 #' @export
 distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
-                             metr.X = "euclidean", bandwidth = 1,use="all") {
+                             metr.X = "euclidean", bandwidth = 1, use = "all") {
 
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X,type.X)
@@ -298,21 +306,23 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     n <- ss.dimX$Sample.Size
     p <- ss.dimX$Dimension
 
-    if  (use=="complete.obs") {
+    if (use == "complete.obs") {
         ccX <-  1:n
-        if (type.X=="sample") {
-            ccX <- which(complete.cases(X))}
-            if (type.X=="sample" && p==1) {
-            X <- X[ccX]} else if (type.X=="sample" && p>1) {
-            X <- X[ccX,]
-            }
+        if (type.X == "sample") {
+            ccX <- which(complete.cases(X))
+        }
+        if (type.X == "sample" && p == 1) {
+            X <- X[ccX]
+        } else if (type.X == "sample" && p > 1) {
+            X <- X[ccX, ]
+        }
         n <- length(ccX)
     }
 
 
     if (bias_corr == TRUE &&
         type.X == "sample" &&
-        metr.X == "euclidean" && n > 175 && p==1L) {
+        metr.X == "euclidean" && n > 175 && p == 1L) {
         dvar2 <- distvar_fast(X)
         dvar <- sqrt(abs(dvar2)) * sign(dvar2)
         return(dvar)
@@ -379,7 +389,11 @@ mroot <- function(A) {
 
 
 
-distmat <- function(X,metr.X="euclidean",alpha=1,n,p)
+distmat <- function(X,
+                    metr.X = "euclidean",
+                    alpha = 1,
+                    n,
+                    p)
 {
     if (metr.X == "euclidean") {
         distX <- Dist(X)
@@ -397,40 +411,45 @@ distmat <- function(X,metr.X="euclidean",alpha=1,n,p)
             distX <- matrix(ncol = n, nrow = n)
             for (i in 1:n) {
                 for (j in i:n) {
-                    distX[i, j] <- distX[j, i] <- match.fun(metr)(X[i,], X[j,])
+                    distX[i, j] <- distX[j, i] <- match.fun(metr)(X[i, ], X[j, ])
                 }
             }
         }
     }
     return(distX)
-  }
-
-
-centmat <- function(X,metr.X="euclidean",type.X="sample",bias_corr=TRUE,n,p) {
-    ## if distance matrix is given
-    if (type.X == "distance") {
-        distX <- X
-    } else {
-
-        distX <- distmat(X,metr.X,alpha,n,p)
-    }
-    cmX <- colmeans(distX)
-    mX <- .Internal(mean(cmX))
-
-    if (bias_corr==TRUE) {
-        cmX <- n * cmX / (n-2)
-        mX  <- n^2 * mX / (n-1) / (n-2)
-    }
-
-    res <- normalize_matrix(distX,cmX,mX)
-
-    if (bias_corr==TRUE) {
-        diag(res) <- rep(0,n)
-        res <- sqrt(n/(n-3))*res
-    }
-
-    return(res)
 }
+
+
+centmat <-
+    function(X,
+             metr.X = "euclidean",
+             type.X = "sample",
+             bias_corr = TRUE,
+             n,
+             p) {
+        ## if distance matrix is given
+        if (type.X == "distance") {
+            distX <- X
+        } else {
+            distX <- distmat(X, metr.X, alpha, n, p)
+        }
+        cmX <- colmeans(distX)
+        mX <- .Internal(mean(cmX))
+
+        if (bias_corr == TRUE) {
+            cmX <- n * cmX / (n - 2)
+            mX  <- n ^ 2 * mX / (n - 1) / (n - 2)
+        }
+
+        res <- normalize_matrix(distX, cmX, mX)
+
+        if (bias_corr == TRUE) {
+            diag(res) <- rep(0, n)
+            res <- sqrt(n / (n - 3)) * res
+        }
+
+        return(res)
+    }
 
 
 extract_np <- function(X,type.X) {
