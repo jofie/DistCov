@@ -5,6 +5,10 @@ DyadUpdate <- function(Y, C) {
     .Call('_DistCov_DyadUpdate', PACKAGE = 'DistCov', Y, C)
 }
 
+DyadUpdate_c <- function(Y, C) {
+    .Call('_DistCov_DyadUpdate_c', PACKAGE = 'DistCov', Y, C)
+}
+
 add_vector <- function(X, Y) {
     .Call('_DistCov_add_vector', PACKAGE = 'DistCov', X, Y)
 }
@@ -31,6 +35,10 @@ matrix_prod_sum <- function(X, Y) {
 
 vector_prod_sum <- function(X, Y) {
     .Call('_DistCov_vector_prod_sum', PACKAGE = 'DistCov', X, Y)
+}
+
+specific_vector_prod_sum <- function(X, Y, gamma_1, gamma_X, gamma_Y, gamma_XY) {
+    .Call('_DistCov_specific_vector_prod_sum', PACKAGE = 'DistCov', X, Y, gamma_1, gamma_X, gamma_Y, gamma_XY)
 }
 
 rcpp_parallel_distance <- function(vec) {

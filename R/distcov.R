@@ -14,15 +14,15 @@
 #' @export
 distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                     type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
-                    bandwidth = 1, use="all") {
+                    bandwidth = 1, use = "all") {
 
 
 
 
 
     #extract dimensions and sample sizes
-    ss.dimX <- extract_np(X,type.X)
-    ss.dimY <- extract_np(Y,type.Y)
+    ss.dimX <- extract_np(X, type.X)
+    ss.dimY <- extract_np(Y, type.Y)
 
     n <- ss.dimX$Sample.Size
     p <- ss.dimX$Dimension
@@ -97,7 +97,6 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 
 
 
-    ## if distance matrix is given
     if (type.Y == "distance") {
       distY <- Y
     }else {
@@ -420,8 +419,7 @@ distmat <- function(X,
 }
 
 
-centmat <-
-    function(X,
+centmat <- function(X,
              metr.X = "euclidean",
              type.X = "sample",
              bias_corr = TRUE,
@@ -452,8 +450,8 @@ centmat <-
     }
 
 
-extract_np <- function(X,type.X) {
-    if (type.X=="sample") {
+extract_np <- function(X, type.X) {
+    if (type.X == "sample") {
         if (is.vector(X))
         {
          n <- length(X)
@@ -462,11 +460,14 @@ extract_np <- function(X,type.X) {
         n <- nrow(X)
         p <- ncol(X)
          } else {return("X must be a vector or matrix for type sample")}
-  } else if (type.X=="distance") {if (is.matrix(X)) {
+  } else if (type.X == "distance") {
+    if (is.matrix(X)) {
         n <- nrow(X)
         p <- 1L
-     } else {return("X must be a matrix for type distance")}
+    } else {
+       return("X must be a matrix for type distance")
+      }
   }
-    return(list("Sample.Size"=n,"Dimension"=p))
+    return(list("Sample.Size" = n, "Dimension" = p))
 }
 

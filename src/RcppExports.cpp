@@ -17,6 +17,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// DyadUpdate_c
+NumericVector DyadUpdate_c(NumericVector& Y, NumericVector& C);
+RcppExport SEXP _DistCov_DyadUpdate_c(SEXP YSEXP, SEXP CSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type C(CSEXP);
+    rcpp_result_gen = Rcpp::wrap(DyadUpdate_c(Y, C));
+    return rcpp_result_gen;
+END_RCPP
+}
 // add_vector
 NumericMatrix add_vector(NumericMatrix& X, NumericVector& Y);
 RcppExport SEXP _DistCov_add_vector(SEXP XSEXP, SEXP YSEXP) {
@@ -79,26 +91,42 @@ BEGIN_RCPP
 END_RCPP
 }
 // matrix_prod_sum
-double matrix_prod_sum(const NumericMatrix X, const NumericMatrix Y);
+double matrix_prod_sum(NumericMatrix& X, NumericMatrix& Y);
 RcppExport SEXP _DistCov_matrix_prod_sum(SEXP XSEXP, SEXP YSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const NumericMatrix >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type Y(YSEXP);
     rcpp_result_gen = Rcpp::wrap(matrix_prod_sum(X, Y));
     return rcpp_result_gen;
 END_RCPP
 }
 // vector_prod_sum
-double vector_prod_sum(const NumericVector X, const NumericVector Y);
+double vector_prod_sum(NumericVector& X, NumericVector& Y);
 RcppExport SEXP _DistCov_vector_prod_sum(SEXP XSEXP, SEXP YSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const NumericVector >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type Y(YSEXP);
     rcpp_result_gen = Rcpp::wrap(vector_prod_sum(X, Y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// specific_vector_prod_sum
+double specific_vector_prod_sum(NumericVector& X, NumericVector& Y, NumericVector& gamma_1, NumericVector& gamma_X, NumericVector& gamma_Y, NumericVector& gamma_XY);
+RcppExport SEXP _DistCov_specific_vector_prod_sum(SEXP XSEXP, SEXP YSEXP, SEXP gamma_1SEXP, SEXP gamma_XSEXP, SEXP gamma_YSEXP, SEXP gamma_XYSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type gamma_1(gamma_1SEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type gamma_X(gamma_XSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type gamma_Y(gamma_YSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type gamma_XY(gamma_XYSEXP);
+    rcpp_result_gen = Rcpp::wrap(specific_vector_prod_sum(X, Y, gamma_1, gamma_X, gamma_Y, gamma_XY));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -150,6 +178,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DistCov_DyadUpdate", (DL_FUNC) &_DistCov_DyadUpdate, 2},
+    {"_DistCov_DyadUpdate_c", (DL_FUNC) &_DistCov_DyadUpdate_c, 2},
     {"_DistCov_add_vector", (DL_FUNC) &_DistCov_add_vector, 2},
     {"_DistCov_match_coords", (DL_FUNC) &_DistCov_match_coords, 2},
     {"_DistCov_normalize_matrix", (DL_FUNC) &_DistCov_normalize_matrix, 3},
@@ -157,6 +186,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DistCov_vector_product", (DL_FUNC) &_DistCov_vector_product, 2},
     {"_DistCov_matrix_prod_sum", (DL_FUNC) &_DistCov_matrix_prod_sum, 2},
     {"_DistCov_vector_prod_sum", (DL_FUNC) &_DistCov_vector_prod_sum, 2},
+    {"_DistCov_specific_vector_prod_sum", (DL_FUNC) &_DistCov_specific_vector_prod_sum, 6},
     {"_DistCov_rcpp_parallel_distance", (DL_FUNC) &_DistCov_rcpp_parallel_distance, 1},
     {"_DistCov_rcpp_parallel_colsums", (DL_FUNC) &_DistCov_rcpp_parallel_colsums, 1},
     {"_DistCov_rcpp_parallel_prod_sum", (DL_FUNC) &_DistCov_rcpp_parallel_prod_sum, 2},
