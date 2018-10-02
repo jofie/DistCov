@@ -5,10 +5,6 @@ DyadUpdate <- function(Y, C) {
     .Call('_DistCov_DyadUpdate', PACKAGE = 'DistCov', Y, C)
 }
 
-DyadUpdate_c <- function(Y, C) {
-    .Call('_DistCov_DyadUpdate_c', PACKAGE = 'DistCov', Y, C)
-}
-
 add_vector <- function(X, Y) {
     .Call('_DistCov_add_vector', PACKAGE = 'DistCov', X, Y)
 }

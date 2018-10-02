@@ -17,18 +17,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// DyadUpdate_c
-NumericVector DyadUpdate_c(NumericVector& Y, NumericVector& C);
-RcppExport SEXP _DistCov_DyadUpdate_c(SEXP YSEXP, SEXP CSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type C(CSEXP);
-    rcpp_result_gen = Rcpp::wrap(DyadUpdate_c(Y, C));
-    return rcpp_result_gen;
-END_RCPP
-}
 // add_vector
 NumericMatrix add_vector(NumericMatrix& X, NumericVector& Y);
 RcppExport SEXP _DistCov_add_vector(SEXP XSEXP, SEXP YSEXP) {
@@ -178,7 +166,6 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DistCov_DyadUpdate", (DL_FUNC) &_DistCov_DyadUpdate, 2},
-    {"_DistCov_DyadUpdate_c", (DL_FUNC) &_DistCov_DyadUpdate_c, 2},
     {"_DistCov_add_vector", (DL_FUNC) &_DistCov_add_vector, 2},
     {"_DistCov_match_coords", (DL_FUNC) &_DistCov_match_coords, 2},
     {"_DistCov_normalize_matrix", (DL_FUNC) &_DistCov_normalize_matrix, 3},

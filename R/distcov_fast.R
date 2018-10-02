@@ -4,6 +4,7 @@
 #' @param Y numeric vector containing samples
 #' @return double giving the square of the distance covariance
 #' @details The calculation of this estimate is based on the algorithm in Huo 2014, i.e., it gives an unbiased estimate of the square of the distance covariance. The calculation uses U-statistics and requires only O(n log n) calculations.
+#' @export
 distcov_fast <- function(X, Y) {
     n <- length(X)
     temp <- IX <- IY <- 1:n
@@ -92,10 +93,9 @@ distvar_fast <- function(X) {
 PartialSum2D <- function(X, Y, Z) {
     n <- length(X)
     temp <- IX <- IY <- 1:n
-    IX0 <- Order(X)
+    IX0 <- Rfast::Order(X)
     IX[IX0] <- temp
 
-    #X_sort <- X[IX0]
     Y_sort <- Y[IX0]
     Z_sort <- Z[IX0]
     IY0 <- Rfast::Order(Y_sort)

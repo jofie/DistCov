@@ -3,7 +3,6 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 NumericMatrix normalize_matrix(NumericMatrix & M, NumericVector & cmM, double & mM) {
-  //NumericMatrix res(clone(M));
   NumericVector m(M.nrow(), mM);
   unsigned int ncol = M.ncol();
   for (unsigned int n = 0; n < ncol; ++n) {
@@ -70,7 +69,6 @@ double specific_vector_prod_sum(NumericVector & X,
   }
   return rres;
 }
-
 
 
 
