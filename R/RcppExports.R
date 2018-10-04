@@ -37,6 +37,10 @@ specific_vector_prod_sum <- function(X, Y, gamma_1, gamma_X, gamma_Y, gamma_XY) 
     .Call('_DistCov_specific_vector_prod_sum', PACKAGE = 'DistCov', X, Y, gamma_1, gamma_X, gamma_Y, gamma_XY)
 }
 
+matrix_sum <- function(X) {
+    .Call('_DistCov_matrix_sum', PACKAGE = 'DistCov', X)
+}
+
 rcpp_parallel_distance <- function(vec) {
     .Call('_DistCov_rcpp_parallel_distance', PACKAGE = 'DistCov', vec)
 }

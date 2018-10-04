@@ -14,7 +14,7 @@
 #' @export
 distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                     type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
-                    bandwidth = 1, use = "all") {
+                    use = "all", ...) {
 
 
 
@@ -74,12 +74,12 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         stop("Affinely invariant distance covariance cannot be calculated for type distance")
       }
       if (p > 1) {
-        X <- X %*% solve(mroot(var(X)))
+        X <- X %*% Rfast::spdinv(mroot(var(X)))
       } else {
         X <- X / sd(X)
       }
       if (q > 1) {
-        Y <- Y %*% solve(mroot(var(Y)))
+        Y <- Y %*% Rfast::spdinv(mroot(var(Y)))
       } else {
         Y <- Y / sd(Y)
       }
@@ -91,7 +91,7 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
       distX <- X
     } else {
 
-        distX <- distmat(X,metr.X,alpha,n,p)
+        distX <- distmat(X, metr.X, n, p)
     }
 
 
@@ -99,13 +99,13 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 
     if (type.Y == "distance") {
       distY <- Y
-    }else {
-            distY <- distmat(Y,metr.Y,alpha,m,q)
+    } else {
+            distY <- distmat(Y, metr.Y, m, q)
     }
 
     ##calculate rowmeans
-    cmX <- colmeans(distX)
-    cmY <- colmeans(distY)
+    cmX <- Rfast::colmeans(distX)
+    cmY <- Rfast::colmeans(distY)
 
     ##calculate means of total matrix
     mX <- .Internal(mean(cmX))
@@ -192,8 +192,8 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
         metr.X == "euclidean" && metr.Y == "euclidean" && n > 175 && p == 1L && q == 1L) {
             dcov2 <- distcov_fast(X, Y)
-            dvarX2 <- distcov_fast(X, X)
-            dvarY2 <- distcov_fast(Y, Y)
+            dvarX2 <- distvar_fast(X)
+            dvarY2 <- distvar_fast(Y)
             dcorr2 <- dcov2 / sqrt(dvarX2 * dvarY2)
             dcorr <- sqrt(abs(dcorr2)) * sign(dcorr2)
             return(dcorr)
@@ -209,12 +209,12 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
             stop("Affinely invariant distance covariance cannot be calculated for type distance")
         }
         if (p > 1) {
-            X <- X %*% solve(mroot(var(X)))
+            X <- X %*% Rfast::spdinv(mroot(var(X)))
         } else {
             X <- X / sd(X)
         }
         if (q > 1) {
-            Y <- Y %*% solve(mroot(var(Y)))
+            Y <- Y %*% Rfast::spdinv(mroot(var(Y)))
         } else {
             Y <- Y / sd(Y)
         }
@@ -226,8 +226,7 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.X == "distance") {
         distX <- X
     } else {
-
-        distX <- distmat(X,metr.X,n,p)
+        distX <- distmat(X, metr.X, n, p)
     }
 
 
@@ -236,21 +235,21 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.Y == "distance") {
         distY <- Y
     } else {
-        distY <- distmat(Y,metr.Y,m,q)
+        distY <- distmat(Y, metr.Y, m, q)
     }
 
     ##calculate rowmeans
-    cmX <- colmeans(distX)
-    cmY <- colmeans(distY)
+    cmX <- Rfast::colmeans(distX)
+    cmY <- Rfast::colmeans(distY)
 
     ##calculate means of total matrix
     mX <- .Internal(mean(cmX))
     mY <- .Internal(mean(cmY))
 
     if (bias_corr == TRUE) {
-        term1 <- matrix.sum(hadamard_product(distX, distY)) / n / (n - 3)
+        term1 <- matrix_prod_sum(distX, distY) / n / (n - 3)
         term2 <- n ^ 4 * mX * mY / n / (n - 1) / (n - 2) / (n - 3)
-        term3 <- n ^ 2 * sum(vector_product(cmX,  cmY)) / n / (n - 2) / (n - 3)
+        term3 <- n ^ 2 * vector_prod_sum(cmX,  cmY) / n / (n - 2) / (n - 3)
         dcov2 <- term1 + term2 - 2 * term3
         dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth, use = "all")
         dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth, use = "all")
@@ -259,9 +258,9 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 
 
     if (bias_corr == FALSE) {
-        term1 <- matrix.sum(hadamard_product(distX, distY)) / n ^ 2
+        term1 <- matrix_prod_sum(distX, distY) / n ^ 2
         term2 <- mX * mY
-        term3 <- sum(vector_product(cmX, cmY)) / n
+        term3 <- vector_prod_sum(cmX, cmY) / n
         dcov2 <- term1 + term2 - 2 * term3
         dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth, use = "all")
         dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth, use = "all")
@@ -300,7 +299,7 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                              metr.X = "euclidean", bandwidth = 1, use = "all") {
 
     #extract dimensions and sample sizes
-    ss.dimX <- extract_np(X,type.X)
+    ss.dimX <- extract_np(X, type.X)
 
     n <- ss.dimX$Sample.Size
     p <- ss.dimX$Dimension
@@ -336,7 +335,7 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
             stop("Affinely invariant distance variance cannot be calculated for type distance")
         }
         if (p > 1) {
-            X <- X %*% solve(mroot(var(X)))
+            X <- X %*% Rfast::spdinv(mroot(var(X)))
         } else {
             X <- X / sd(X)
         }
@@ -347,11 +346,11 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.X == "distance") {
         distX <- X
     } else {
-        distX <- distmat(X,metr.X,n,p)
+        distX <- distmat(X, metr.X, n, p)
     }
 
     ##calculate rowmeans
-    cmX <- colmeans(distX)
+    cmX <- Rfast::colmeans(distX)
 
     ##calculate means of total matrix
     mX <- .Internal(mean(cmX))
@@ -375,99 +374,4 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     return(dvar)
 }
 
-## function to calculate matrix roots
-mroot <- function(A) {
-    e <- eigen(A)
-    V <- e$vectors
-    V %*% diag(e$values) %*% t(V)
-
-
-    B <- V %*% diag(sqrt(e$values)) %*% t(V)
-    return(B)
-}
-
-
-
-distmat <- function(X,
-                    metr.X = "euclidean",
-                    alpha = 1,
-                    n,
-                    p)
-{
-    if (metr.X == "euclidean") {
-        distX <- Dist(X)
-    } else if (metr.X == "gaussian") {
-        distX <- 1 - gausskernel(X, sigma = bandwidth)
-    } else if (metr.X == "discrete") {
-        distX <- 1 * (Dist(X) > 0)
-    } else {
-        if (p == 1) {
-            distX <-
-                outer(1:n, 1:n,  function(i, j)
-                    Vectorize(match.fun(metr.X))(X[i], X[j]))
-        }
-        else {
-            distX <- matrix(ncol = n, nrow = n)
-            for (i in 1:n) {
-                for (j in i:n) {
-                    distX[i, j] <- distX[j, i] <- match.fun(metr)(X[i, ], X[j, ])
-                }
-            }
-        }
-    }
-    return(distX)
-}
-
-
-centmat <- function(X,
-             metr.X = "euclidean",
-             type.X = "sample",
-             bias_corr = TRUE,
-             n,
-             p) {
-        ## if distance matrix is given
-        if (type.X == "distance") {
-            distX <- X
-        } else {
-            distX <- distmat(X, metr.X, alpha, n, p)
-        }
-        cmX <- colmeans(distX)
-        mX <- .Internal(mean(cmX))
-
-        if (bias_corr == TRUE) {
-            cmX <- n * cmX / (n - 2)
-            mX  <- n ^ 2 * mX / (n - 1) / (n - 2)
-        }
-
-        res <- normalize_matrix(distX, cmX, mX)
-
-        if (bias_corr == TRUE) {
-            diag(res) <- rep(0, n)
-            res <- sqrt(n / (n - 3)) * res
-        }
-
-        return(res)
-    }
-
-
-extract_np <- function(X, type.X) {
-    if (type.X == "sample") {
-        if (is.vector(X))
-        {
-         n <- length(X)
-         p <- 1L
-         } else if (is.matrix(X)) {
-        n <- nrow(X)
-        p <- ncol(X)
-         } else {return("X must be a vector or matrix for type sample")}
-  } else if (type.X == "distance") {
-    if (is.matrix(X)) {
-        n <- nrow(X)
-        p <- 1L
-    } else {
-       return("X must be a matrix for type distance")
-      }
-  }
-    return(list("Sample.Size" = n, "Dimension" = p))
-}
 

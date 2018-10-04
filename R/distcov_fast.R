@@ -81,8 +81,6 @@ distvar_fast <- function(X) {
 
 
 
-
-
 #' Calculate partial sums
 #'
 #' @param X numeric vector containing samples

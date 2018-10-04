@@ -75,12 +75,12 @@ distcov.test <- function(X,
             stop("Affinely invariant distance covariance cannot be calculated for type distance")
         }
         if (p > 1) {
-            X <- X %*% solve(mroot(var(X)))
+            X <- X %*% Rfast::spdinv(mroot(var(X)))
         } else {
             X <- X / sd(X)
         }
         if (q > 1) {
-            Y <- Y %*% solve(mroot(var(Y)))
+            Y <- Y %*% Rfast::spdinv(mroot(var(Y)))
         } else {
             Y <- Y / sd(Y)
         }
@@ -96,11 +96,11 @@ distcov.test <- function(X,
             metr.Y == "euclidean" && n > 1e4 && p == 1L && q == 1L) {
             temp <- IX <- IY  <- 1:n
 
-            IX0 <- sort_index(X) + 1
+            IX0 <- Rfast::Order(X) + 1
             vX <- X[IX0]
             IX[IX0] <- temp
 
-            IY0 <- sort_index(Y) + 1
+            IY0 <- Rfast::Order(Y) + 1
             vY <- Y[IY0]
             IY[IY0] <- temp
 

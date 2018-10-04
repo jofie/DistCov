@@ -118,6 +118,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// matrix_sum
+double matrix_sum(NumericMatrix& X);
+RcppExport SEXP _DistCov_matrix_sum(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(matrix_sum(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_parallel_distance
 NumericMatrix rcpp_parallel_distance(NumericVector vec);
 RcppExport SEXP _DistCov_rcpp_parallel_distance(SEXP vecSEXP) {
@@ -174,6 +185,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DistCov_matrix_prod_sum", (DL_FUNC) &_DistCov_matrix_prod_sum, 2},
     {"_DistCov_vector_prod_sum", (DL_FUNC) &_DistCov_vector_prod_sum, 2},
     {"_DistCov_specific_vector_prod_sum", (DL_FUNC) &_DistCov_specific_vector_prod_sum, 6},
+    {"_DistCov_matrix_sum", (DL_FUNC) &_DistCov_matrix_sum, 1},
     {"_DistCov_rcpp_parallel_distance", (DL_FUNC) &_DistCov_rcpp_parallel_distance, 1},
     {"_DistCov_rcpp_parallel_colsums", (DL_FUNC) &_DistCov_rcpp_parallel_colsums, 1},
     {"_DistCov_rcpp_parallel_prod_sum", (DL_FUNC) &_DistCov_rcpp_parallel_prod_sum, 2},

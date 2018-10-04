@@ -39,10 +39,10 @@ double matrix_prod_sum(NumericMatrix & X, NumericMatrix & Y){
   unsigned int n = X.nrow();
   for (unsigned int i = 0; i < n; i++) {
     for (unsigned int j = i + 1; j < n; j++) {
-      rres += 2 * X(j, i) * Y(j, i);
+      rres += X(j, i) * Y(j, i);
     }
   }
-  return rres;
+  return 2 * rres;
 }
 
 // [[Rcpp::export]]
@@ -56,7 +56,7 @@ double vector_prod_sum(NumericVector & X, NumericVector & Y){
 }
 
 // [[Rcpp::export]]
-double specific_vector_prod_sum(NumericVector & X, 
+double specific_vector_prod_sum(NumericVector & X,
                                 NumericVector & Y,
                                 NumericVector & gamma_1,
                                 NumericVector & gamma_X,
@@ -70,6 +70,17 @@ double specific_vector_prod_sum(NumericVector & X,
   return rres;
 }
 
+// [[Rcpp::export]]
+double matrix_sum(NumericMatrix & X) {
+  double res = 0;
+  int n = X.nrow();
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < i; j++) {
+      res += X(i, j);
+    }
+  }
+  return 2 * res;
+}
 
 
 

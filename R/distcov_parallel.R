@@ -55,12 +55,12 @@ distcov_parallel <-
         stop("Affinely invariant distance covariance cannot be calculated for type distance")
       }
       if (p > 1) {
-        X <- X %*% solve(mroot(var(X)))
+        X <- X %*% Rfast::spdinv(mroot(var(X)))
       } else {
         X <- X / sd(X)
       }
       if (q > 1) {
-        Y <- Y %*% solve(mroot(var(Y)))
+        Y <- Y %*% Rfast::spdinv(mroot(var(Y)))
       } else {
         Y <- Y / sd(Y)
       }
@@ -219,12 +219,12 @@ distcorr_parallel <-
         stop("Affinely invariant distance covariance cannot be calculated for type distance")
       }
       if (p > 1) {
-        X <- X %*% solve(mroot(var(X)))
+        X <- X %*% Rfast::spdinv(mroot(var(X)))
       } else {
         X <- X / sd(X)
       }
       if (q > 1) {
-        Y <- Y %*% solve(mroot(var(Y)))
+        Y <- Y %*% Rfast::spdinv(mroot(var(Y)))
       } else {
         Y <- Y / sd(Y)
       }
@@ -291,8 +291,8 @@ distcorr_parallel <-
       }
     }
     ##calculate rowmeans
-    cmX <- colmeans(distX)
-    cmY <- colmeans(distY)
+    cmX <- Rfast::colmeans(distX)
+    cmY <- Rfast::colmeans(distY)
 
     ##calculate means of total matrix
     mX <- .Internal(mean(cmX))
@@ -300,9 +300,9 @@ distcorr_parallel <-
 
     if (bias_corr == TRUE)
     {
-        term1 <- matrix.sum(hadamard_product(distX, distY)) / n / (n - 3)
+        term1 <- matrix_prod_sum(distX, distY) / n / (n - 3)
         term2 <- n ^ 4 * mX * mY / n / (n - 1) / (n - 2) / (n - 3)
-        term3 <- n ^ 2 * sum(vector_product(cmX,  cmY)) / n / (n - 2) / (n - 3)
+        term3 <- n ^ 2 * vector_prod_sum(cmX,  cmY) / n / (n - 2) / (n - 3)
         dcov2 <- term1 + term2 - 2 * term3
         dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth)
         dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth)
@@ -312,9 +312,9 @@ distcorr_parallel <-
 
     if (bias_corr == FALSE)
     {
-        term1 <- matrix.sum(hadamard_product(distX, distY)) / n ^ 2
+        term1 <- matrix_prod_sum(distX, distY) / n ^ 2
         term2 <- mX * mY
-        term3 <- sum(vector_product(cmX, cmY)) / n
+        term3 <- vector_prod_sum(cmX, cmY) / n
         dcov2 <- term1 + term2 - 2 * term3
         dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth)
         dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth)
@@ -383,7 +383,7 @@ distvar_parallel <-
         stop("Affinely invariant distance variance cannot be calculated for type distance")
       }
       if (p > 1) {
-        X <- X %*% solve(mroot(var(X)))
+        X <- X %*% Rfast::spdinv(mroot(var(X)))
       } else {
         X <- X / sd(X)
       }
@@ -421,28 +421,28 @@ distvar_parallel <-
       }
     }
 
-    ##calculate rowmeans
-    cmX <- colmeans(distX)
+    ##calculate colmeans
+    cmX <- Rfast::colmeans(distX)
 
     ##calculate means of total matrix
     mX <- .Internal(mean(cmX))
 
     if (bias_corr == TRUE)
     {
-        term1 <- matrix.sum(hadamard_product(distX, distX)) / n / (n - 3)
+        term1 <- matrix_prod_sum(distX, distX) / n / (n - 3)
         term2 <-
             n ^ 4 * mX ^ 2 / n / (n - 1) / (n - 2) / (n - 3)
         term3 <-
-            n ^ 2 * sum(vector_product(cmX,  cmX)) / n / (n - 2) / (n - 3)
+            n ^ 2 * vector_prod_sum(cmX,  cmX) / n / (n - 2) / (n - 3)
         dvar2 <- term1 + term2 - 2 * term3
     }
 
 
     if (bias_corr == FALSE)
     {
-        term1 <- matrix.sum(hadamard_product(distX, distX)) / n ^ 2
+        term1 <- matrix_prod_sum(distX, distX) / n ^ 2
         term2 <- mX * mX
-        term3 <- sum(vector_product(cmX, cmX)) / n
+        term3 <- vector_prod_sum(cmX, cmX) / n
         dvar2 <- term1 + term2 - 2 * term3
     }
     ## distance covariance (alternative construction if dcov2 is negative due to bias correction)
