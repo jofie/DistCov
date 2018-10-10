@@ -8,13 +8,13 @@
 #' @param type.Y see type.X.
 #' @param metr.X specifies the metric which should be used for X to analyse the distance covariance. TO DO: Provide details for this.
 #' @param metr.Y see metr.X.
-#' @param bandwidth currently not implemented.
+#' @param alpha specifies parameters for calculating the distances.
 #' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return numeric giving the distance covariance between samples X and Y.
 #' @export
 distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                     type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
-                    bandwidth = 1, use = "all") {
+                    alpha = c(1,1), use = "all") {
 
 
 
@@ -91,7 +91,7 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
       distX <- X
     } else {
 
-        distX <- distmat(X,metr.X,alpha,n,p)
+        distX <- distmat(X, metr.X ,alpha[1], n, p)
     }
 
 
@@ -100,7 +100,7 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.Y == "distance") {
       distY <- Y
     }else {
-            distY <- distmat(Y,metr.Y,alpha,m,q)
+            distY <- distmat(Y, metr.Y, alpha[2], m, q)
     }
 
     ##calculate rowmeans
@@ -143,14 +143,14 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 #' @param type.Y see type.X.
 #' @param metr.X specifies the metric which should be used for X to analyse the distance correlation. TO DO: Provide details for this.
 #' @param metr.Y see metr.X.
-#' @param bandwidth currently not implemented.
+#' @param alpha.
 #' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return numeric giving the distance correlation between samples X and Y.
 #' @export
 
 distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                      type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
-                     bandwidth = 1, use = "all") {
+                     alpha = c(1,1), use = "all") {
 
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X,type.X)
@@ -227,7 +227,7 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         distX <- X
     } else {
 
-        distX <- distmat(X,metr.X,n,p)
+        distX <- distmat(X, metr.X, alpha[1], n, p)
     }
 
 
@@ -236,7 +236,7 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.Y == "distance") {
         distY <- Y
     } else {
-        distY <- distmat(Y,metr.Y,m,q)
+        distY <- distmat(Y, metr.Y, alpha[2], m, q)
     }
 
     ##calculate rowmeans
@@ -252,8 +252,8 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         term2 <- n ^ 4 * mX * mY / n / (n - 1) / (n - 2) / (n - 3)
         term3 <- n ^ 2 * sum(vector_product(cmX,  cmY)) / n / (n - 2) / (n - 3)
         dcov2 <- term1 + term2 - 2 * term3
-        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth, use = "all")
-        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth, use = "all")
+        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, alpha[1], use = "all")
+        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, alpha[2], use = "all")
         dcorr2 <- dcov2 / dvarX / dvarY
     }
 
@@ -263,8 +263,8 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         term2 <- mX * mY
         term3 <- sum(vector_product(cmX, cmY)) / n
         dcov2 <- term1 + term2 - 2 * term3
-        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth, use = "all")
-        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth, use = "all")
+        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, alpha[1], use = "all")
+        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, alpha[2], use = "all")
         dcorr2 <- dcov2 / dvarX / dvarY
     }
 
@@ -292,12 +292,12 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 #' @param bias_corr logical; indicates if the bias corrected version of the sample distance variance should be calculated.
 #' @param type.X either "sample" or "distance"; specifies the type of input for X.
 #' @param metr.X specifies the metric which should be used for X to analyse the distance variance TO DO: Provide details for this.
-#' @param bandwidth currently not implemented.
+#' @param alpha
 #' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return numeric giving the distance variance of the sample X..
 #' @export
 distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
-                             metr.X = "euclidean", bandwidth = 1, use = "all") {
+                             metr.X = "euclidean", alpha = 1, use = "all") {
 
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X,type.X)
@@ -347,7 +347,7 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.X == "distance") {
         distX <- X
     } else {
-        distX <- distmat(X,metr.X,n,p)
+        distX <- distmat(X, metr.X, alpha , n, p)
     }
 
     ##calculate rowmeans
@@ -394,10 +394,12 @@ distmat <- function(X,
                     n,
                     p)
 {
-    if (metr.X == "euclidean") {
+    if (metr.X == "euclidean" & alpha ==1) {
         distX <- Dist(X)
+    } else if (metr.X == "euclidean") {
+        distX <- Dist(X)^alpha
     } else if (metr.X == "gaussian") {
-        distX <- 1 - gausskernel(X, sigma = bandwidth)
+        distX <- 1 - exp(-Dist(X)/(2*alpha^2))
     } else if (metr.X == "discrete") {
         distX <- 1 * (Dist(X) > 0)
     } else {
@@ -423,6 +425,7 @@ centmat <- function(X,
              metr.X = "euclidean",
              type.X = "sample",
              bias_corr = TRUE,
+             alpha,
              n,
              p) {
         ## if distance matrix is given

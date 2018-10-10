@@ -10,7 +10,7 @@
 #' @param type.Y see type.X.
 #' @param metr.X specifies the metric which should be used for X to analyse the distance covariance. TO DO: Provide details for this.
 #' @param metr.Y see metr.X.
-#' @param bandwidth currently not implemented.
+#' @param alpha is.
 #' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return list with two elements, dcov gives the distance covariance between X and Y, pval gives the p-value of the corresponding test
 #' @export
@@ -25,7 +25,7 @@ distcov.test <- function(X,
                          type.Y = "sample",
                          metr.X = "euclidean",
                          metr.Y = "euclidean",
-                         bandwidth = 1,
+                         alpha = c(1,1),
                          use = "all") {
 
     #extract dimensions and sample sizes
@@ -96,11 +96,11 @@ distcov.test <- function(X,
             metr.Y == "euclidean" && n > 1e4 && p == 1L && q == 1L) {
             temp <- IX <- IY  <- 1:n
 
-            IX0 <- sort_index(X) + 1
+            IX0 <- Rfast::Order(X) + 1
             vX <- X[IX0]
             IX[IX0] <- temp
 
-            IY0 <- sort_index(Y) + 1
+            IY0 <- Rfast::Order(Y) + 1
             vY <- Y[IY0]
             IY[IY0] <- temp
 
@@ -172,8 +172,8 @@ distcov.test <- function(X,
             pval <- (1 + length(which(reps > dcov))) / (1 + b)
 
         }  else {
-            A <- centmat(X, metr.X, type.X, bias_corr, n, p)
-            B <- centmat(Y, metr.Y, type.Y, bias_corr, n, q)
+            A <- centmat(X, metr.X, type.X, bias_corr, alpha[1], n, p)
+            B <- centmat(Y, metr.Y, type.Y, bias_corr, alpha[2], n, q)
             if (bias_corr == TRUE) {
                 dcov2 <- matrix_prod_sum(A , B) / n ^ 2
             } else {
@@ -209,15 +209,15 @@ distcov.test <- function(X,
 
     if (test == "gamma") {
         distvarX <-
-            distvar.meanoutput(X, affine, bias_corr = TRUE, type.X, metr.X, bandwidth)
+            distvar.meanoutput(X, affine, bias_corr = TRUE, type.X, metr.X, alpha[1])
         distvarY <-
-            distvar.meanoutput(Y, affine, bias_corr = TRUE, type.Y, metr.Y, bandwidth)
+            distvar.meanoutput(Y, affine, bias_corr = TRUE, type.Y, metr.Y, alpha[2])
 
         U1 <- distvarX$dvar ^ 2 * distvarY$dvar ^ 2
         U2 <- distvarX$mean * (n / (n - 1))
         U3 <- distvarY$mean * (n / (n - 1))
 
-        alpha <- 1 / 2 * (U2 ^ 2 * U3 ^ 2) / U1
+        alph <- 1 / 2 * (U2 ^ 2 * U3 ^ 2) / U1
         beta <- 1 / 2 * (U2 * U3) / U1
         dcov <-
             distcov(
@@ -229,11 +229,11 @@ distcov.test <- function(X,
                 type.Y = type.Y,
                 metr.X = metr.X,
                 metr.Y = metr.Y,
-                bandwidth = bandwidth,
+                alpha = alpha,
                 use = "all"
             )
         stat <- n * sign(dcov) * dcov ^ 2 + U2 * U3
-        pval <- 1 - pgamma(stat, alpha, beta)
+        pval <- pgamma(stat, alph, beta, lower.tail = FALSE)
     }
 
 

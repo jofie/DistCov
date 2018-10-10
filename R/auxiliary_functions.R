@@ -1,5 +1,5 @@
 distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
-                    metr.X = "euclidean", bandwidth = 1) {
+                               metr.X = "euclidean", alpha = 1, use = "all") {
 
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X,type.X)
@@ -7,12 +7,27 @@ distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sa
     n <- ss.dimX$Sample.Size
     p <- ss.dimX$Dimension
 
+    if (use == "complete.obs") {
+        ccX <-  1:n
+        if (type.X == "sample") {
+            ccX <- which(complete.cases(X))
+        }
+        if (type.X == "sample" && p == 1) {
+            X <- X[ccX]
+        } else if (type.X == "sample" && p > 1) {
+            X <- X[ccX, ]
+        }
+        n <- length(ccX)
+    }
+
+
     if (bias_corr == TRUE &&
         type.X == "sample" &&
-        metr.X == "euclidean" && n > 175 && p==1L) {
-        dvar2 <- distvar_fast.meanoutput(X)
-        dvar <- sqrt(abs(dvar2$dvar2)) * sign(dvar2$dvar2)
-        return(list("dvar2"=dvar,"mean"=dvar2$mean))
+        metr.X == "euclidean" && n > 175 && p == 1L) {
+        dvar2mean <- distvar_fast.meanoutput(X)
+        dvar2 <- dvar2mean$dvar2
+        dvar <- sqrt(abs(dvar2)) * sign(dvar2)
+        return(list("dvar"=dvar,"mean"=dvar2mean$mean))
     }
 
     ## normalize samples if calculation of affinely invariant distance covariance is desired
@@ -35,7 +50,7 @@ distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sa
     if (type.X == "distance") {
         distX <- X
     } else {
-        distX <- distmat(X,metr.X,n)
+        distX <- distmat(X, metr.X, alpha, n, p)
     }
 
     ##calculate rowmeans
@@ -68,8 +83,8 @@ distvar_fast.meanoutput <- function(X) {
     n <- length(X)
     temp <- IX <- 1:n
 
-    vX <- Sort(X)
-    IX0 <- sort_index(X) + 1
+    IX0 <- Rfast::Order(X)
+    vX <- X[IX0]
     IX[IX0] <- temp
 
 
@@ -79,17 +94,17 @@ distvar_fast.meanoutput <- function(X) {
     Xdot <- sum(X)
 
     aidot <- Xdot + (2 * alphaX - n) * X - 2 * betaX
-    Saa <- sum(aidot^2)
+    Saa <- vector_prod_sum(aidot, aidot)
 
-    adotdot <- 2 * sum(alphaX * X) - 2 * sum(betaX)
+    adotdot <- 2 * vector_prod_sum(alphaX, X) - 2 * sum(betaX)
 
     gamma_1  <- PartialSum2D(X, X, rep(1, n))
     gamma_X  <- PartialSum2D(X, X, X)
     gamma_XX <- PartialSum2D(X, X, X * X)
 
-    aijaij <- sum(X^2 * gamma_1 + gamma_XX - X * gamma_X - X * gamma_X)
-    dvar <- aijaij / n / (n - 3) - 2 * Saa / n / (n - 2) / (n - 3) + adotdot * adotdot / n / (n - 1) / (n - 2) / (n - 3)
-    return (list("dvar2"=dvar,"mean"=adotdot / n^2))
+    aijaij <- specific_vector_prod_sum(X, X, gamma_1, gamma_X, gamma_X, gamma_XX)
+    dVar <- aijaij / n / (n - 3) - 2 * Saa / n / (n - 2) / (n - 3) + adotdot * adotdot / n / (n - 1) / (n - 2) / (n - 3)
+    return (list("dvar2"=dVar,"mean"=adotdot / n^2))
 }
 
 
