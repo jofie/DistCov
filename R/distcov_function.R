@@ -8,13 +8,17 @@
 #' @param type.Y see type.X.
 #' @param metr.X specifies the metric which should be used for X to analyse the distance covariance. TO DO: Provide details for this.
 #' @param metr.Y see metr.X.
-#' @param bandwidth currently not implemented.
+#' @param alpha specifies parameters for calculating the distances.
 #' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return numeric giving the distance covariance between samples X and Y.
 #' @export
 distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                     type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
+<<<<<<< HEAD
                     use = "all", ...) {
+=======
+                    alpha = c(1,1), use = "all") {
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
 
 
 
@@ -91,7 +95,11 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
       distX <- X
     } else {
 
+<<<<<<< HEAD
         distX <- distmat(X, metr.X, n, p)
+=======
+        distX <- distmat(X, metr.X ,alpha[1], n, p)
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     }
 
 
@@ -99,8 +107,13 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 
     if (type.Y == "distance") {
       distY <- Y
+<<<<<<< HEAD
     } else {
             distY <- distmat(Y, metr.Y, m, q)
+=======
+    }else {
+            distY <- distmat(Y, metr.Y, alpha[2], m, q)
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     }
 
     ##calculate rowmeans
@@ -143,14 +156,14 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 #' @param type.Y see type.X.
 #' @param metr.X specifies the metric which should be used for X to analyse the distance correlation. TO DO: Provide details for this.
 #' @param metr.Y see metr.X.
-#' @param bandwidth currently not implemented.
+#' @param alpha.
 #' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return numeric giving the distance correlation between samples X and Y.
 #' @export
 
 distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
                      type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
-                     bandwidth = 1, use = "all") {
+                     alpha = c(1,1), use = "all") {
 
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X,type.X)
@@ -226,7 +239,12 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.X == "distance") {
         distX <- X
     } else {
+<<<<<<< HEAD
         distX <- distmat(X, metr.X, n, p)
+=======
+
+        distX <- distmat(X, metr.X, alpha[1], n, p)
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     }
 
 
@@ -235,7 +253,11 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.Y == "distance") {
         distY <- Y
     } else {
+<<<<<<< HEAD
         distY <- distmat(Y, metr.Y, m, q)
+=======
+        distY <- distmat(Y, metr.Y, alpha[2], m, q)
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     }
 
     ##calculate rowmeans
@@ -251,8 +273,8 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         term2 <- n ^ 4 * mX * mY / n / (n - 1) / (n - 2) / (n - 3)
         term3 <- n ^ 2 * vector_prod_sum(cmX,  cmY) / n / (n - 2) / (n - 3)
         dcov2 <- term1 + term2 - 2 * term3
-        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth, use = "all")
-        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth, use = "all")
+        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, alpha[1], use = "all")
+        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, alpha[2], use = "all")
         dcorr2 <- dcov2 / dvarX / dvarY
     }
 
@@ -262,8 +284,8 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
         term2 <- mX * mY
         term3 <- vector_prod_sum(cmX, cmY) / n
         dcov2 <- term1 + term2 - 2 * term3
-        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, bandwidth, use = "all")
-        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, bandwidth, use = "all")
+        dvarX <- distvar(X, affine, bias_corr, type.X, metr.X, alpha[1], use = "all")
+        dvarY <- distvar(Y, affine, bias_corr, type.Y, metr.Y, alpha[2], use = "all")
         dcorr2 <- dcov2 / dvarX / dvarY
     }
 
@@ -291,12 +313,12 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 #' @param bias_corr logical; indicates if the bias corrected version of the sample distance variance should be calculated.
 #' @param type.X either "sample" or "distance"; specifies the type of input for X.
 #' @param metr.X specifies the metric which should be used for X to analyse the distance variance TO DO: Provide details for this.
-#' @param bandwidth currently not implemented.
+#' @param alpha
 #' @param use : "all" uses all observations, "complete.obs" excludes NA's
 #' @return numeric giving the distance variance of the sample X..
 #' @export
 distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
-                             metr.X = "euclidean", bandwidth = 1, use = "all") {
+                             metr.X = "euclidean", alpha = 1, use = "all") {
 
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X, type.X)
@@ -346,7 +368,11 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     if (type.X == "distance") {
         distX <- X
     } else {
+<<<<<<< HEAD
         distX <- distmat(X, metr.X, n, p)
+=======
+        distX <- distmat(X, metr.X, alpha , n, p)
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     }
 
     ##calculate rowmeans
@@ -374,4 +400,105 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
     return(dvar)
 }
 
+<<<<<<< HEAD
+=======
+## function to calculate matrix roots
+mroot <- function(A) {
+    e <- eigen(A)
+    V <- e$vectors
+    V %*% diag(e$values) %*% t(V)
+
+
+    B <- V %*% diag(sqrt(e$values)) %*% t(V)
+    return(B)
+}
+
+
+
+distmat <- function(X,
+                    metr.X = "euclidean",
+                    alpha = 1,
+                    n,
+                    p)
+{
+    if (metr.X == "euclidean" & alpha ==1) {
+        distX <- Dist(X)
+    } else if (metr.X == "euclidean") {
+        distX <- Dist(X)^alpha
+    } else if (metr.X == "gaussian") {
+        distX <- 1 - exp(-Dist(X)/(2*alpha^2))
+    } else if (metr.X == "discrete") {
+        distX <- 1 * (Dist(X) > 0)
+    } else {
+        if (p == 1) {
+            distX <-
+                outer(1:n, 1:n,  function(i, j)
+                    Vectorize(match.fun(metr.X))(X[i], X[j]))
+        }
+        else {
+            distX <- matrix(ncol = n, nrow = n)
+            for (i in 1:n) {
+                for (j in i:n) {
+                    distX[i, j] <- distX[j, i] <- match.fun(metr)(X[i, ], X[j, ])
+                }
+            }
+        }
+    }
+    return(distX)
+}
+
+
+centmat <- function(X,
+             metr.X = "euclidean",
+             type.X = "sample",
+             bias_corr = TRUE,
+             alpha,
+             n,
+             p) {
+        ## if distance matrix is given
+        if (type.X == "distance") {
+            distX <- X
+        } else {
+            distX <- distmat(X, metr.X, alpha, n, p)
+        }
+        cmX <- colmeans(distX)
+        mX <- .Internal(mean(cmX))
+
+        if (bias_corr == TRUE) {
+            cmX <- n * cmX / (n - 2)
+            mX  <- n ^ 2 * mX / (n - 1) / (n - 2)
+        }
+
+        res <- normalize_matrix(distX, cmX, mX)
+
+        if (bias_corr == TRUE) {
+            diag(res) <- rep(0, n)
+            res <- sqrt(n / (n - 3)) * res
+        }
+
+        return(res)
+    }
+
+
+extract_np <- function(X, type.X) {
+    if (type.X == "sample") {
+        if (is.vector(X))
+        {
+         n <- length(X)
+         p <- 1L
+         } else if (is.matrix(X)) {
+        n <- nrow(X)
+        p <- ncol(X)
+         } else {return("X must be a vector or matrix for type sample")}
+  } else if (type.X == "distance") {
+    if (is.matrix(X)) {
+        n <- nrow(X)
+        p <- 1L
+    } else {
+       return("X must be a matrix for type distance")
+      }
+  }
+    return(list("Sample.Size" = n, "Dimension" = p))
+}
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
 

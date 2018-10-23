@@ -118,6 +118,7 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+<<<<<<< HEAD
 // matrix_sum
 double matrix_sum(NumericMatrix& X);
 RcppExport SEXP _DistCov_matrix_sum(SEXP XSEXP) {
@@ -126,6 +127,31 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix& >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(matrix_sum(X));
+=======
+// matrix_prod_sum_sample
+double matrix_prod_sum_sample(const NumericMatrix X, const NumericMatrix Y, const IntegerVector s);
+RcppExport SEXP _DistCov_matrix_prod_sum_sample(SEXP XSEXP, SEXP YSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type s(sSEXP);
+    rcpp_result_gen = Rcpp::wrap(matrix_prod_sum_sample(X, Y, s));
+    return rcpp_result_gen;
+END_RCPP
+}
+// vector_prod_sum_sample
+double vector_prod_sum_sample(const NumericVector X, const NumericVector Y, const IntegerVector s);
+RcppExport SEXP _DistCov_vector_prod_sum_sample(SEXP XSEXP, SEXP YSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type s(sSEXP);
+    rcpp_result_gen = Rcpp::wrap(vector_prod_sum_sample(X, Y, s));
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     return rcpp_result_gen;
 END_RCPP
 }
@@ -185,7 +211,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_DistCov_matrix_prod_sum", (DL_FUNC) &_DistCov_matrix_prod_sum, 2},
     {"_DistCov_vector_prod_sum", (DL_FUNC) &_DistCov_vector_prod_sum, 2},
     {"_DistCov_specific_vector_prod_sum", (DL_FUNC) &_DistCov_specific_vector_prod_sum, 6},
+<<<<<<< HEAD
     {"_DistCov_matrix_sum", (DL_FUNC) &_DistCov_matrix_sum, 1},
+=======
+    {"_DistCov_matrix_prod_sum_sample", (DL_FUNC) &_DistCov_matrix_prod_sum_sample, 3},
+    {"_DistCov_vector_prod_sum_sample", (DL_FUNC) &_DistCov_vector_prod_sum_sample, 3},
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     {"_DistCov_rcpp_parallel_distance", (DL_FUNC) &_DistCov_rcpp_parallel_distance, 1},
     {"_DistCov_rcpp_parallel_colsums", (DL_FUNC) &_DistCov_rcpp_parallel_colsums, 1},
     {"_DistCov_rcpp_parallel_prod_sum", (DL_FUNC) &_DistCov_rcpp_parallel_prod_sum, 2},

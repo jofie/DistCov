@@ -71,6 +71,7 @@ double specific_vector_prod_sum(NumericVector & X,
 }
 
 // [[Rcpp::export]]
+<<<<<<< HEAD
 double matrix_sum(NumericMatrix & X) {
   double res = 0;
   int n = X.nrow();
@@ -81,6 +82,30 @@ double matrix_sum(NumericMatrix & X) {
   }
   return 2 * res;
 }
+=======
+double matrix_prod_sum_sample(const NumericMatrix X, const NumericMatrix Y, const IntegerVector s){
+    unsigned int n = X.nrow();
+    double res = 0;
+    for (unsigned int j = 0; j < n; j++) {
+        for (unsigned int i = (j + 1); i < n; i++) {
+            res += X(i, j) * Y(s[i] - 1, s[j] - 1);
+        }
+    }
+    return 2 * res;
+}
+
+
+// [[Rcpp::export]]
+double vector_prod_sum_sample(const NumericVector X, const NumericVector Y, const IntegerVector s){
+    unsigned int n = X.size();
+    double res = 0;
+    for (unsigned int j = 0; j < n; j++) {
+        res += X[j] * Y[s[j] - 1];
+    }
+    return res;
+}
+
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
 
 
 

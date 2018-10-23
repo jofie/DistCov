@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 distvar.meanoutput <-
   function(X,
            affine = FALSE,
@@ -5,18 +6,44 @@ distvar.meanoutput <-
            type.X = "sample",
            metr.X = "euclidean",
            bandwidth = 1) {
+=======
+distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
+                               metr.X = "euclidean", alpha = 1, use = "all") {
+
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X, type.X)
 
     n <- ss.dimX$Sample.Size
     p <- ss.dimX$Dimension
 
+    if (use == "complete.obs") {
+        ccX <-  1:n
+        if (type.X == "sample") {
+            ccX <- which(complete.cases(X))
+        }
+        if (type.X == "sample" && p == 1) {
+            X <- X[ccX]
+        } else if (type.X == "sample" && p > 1) {
+            X <- X[ccX, ]
+        }
+        n <- length(ccX)
+    }
+
+
     if (bias_corr == TRUE &&
         type.X == "sample" &&
         metr.X == "euclidean" && n > 175 && p == 1L) {
+<<<<<<< HEAD
       dvar2 <- distvar_fast.meanoutput(X)
       dvar <- sqrt(abs(dvar2$dvar2)) * sign(dvar2$dvar2)
       return(list("dvar2" = dvar, "mean" = dvar2$mean))
+=======
+        dvar2mean <- distvar_fast.meanoutput(X)
+        dvar2 <- dvar2mean$dvar2
+        dvar <- sqrt(abs(dvar2)) * sign(dvar2)
+        return(list("dvar"=dvar,"mean"=dvar2mean$mean))
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     }
 
     ## normalize samples if calculation of affinely invariant distance covariance is desired
@@ -39,7 +66,11 @@ distvar.meanoutput <-
     if (type.X == "distance") {
       distX <- X
     } else {
+<<<<<<< HEAD
       distX <- distmat(X, metr.X, n, p)
+=======
+        distX <- distmat(X, metr.X, alpha, n, p)
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     }
 
     ##calculate rowmeans
@@ -77,6 +108,12 @@ distvar_fast.meanoutput <- function(X) {
   IX0 <- Rfast::Order(X) + 1
   IX[IX0] <- temp
 
+<<<<<<< HEAD
+=======
+    IX0 <- Rfast::Order(X)
+    vX <- X[IX0]
+    IX[IX0] <- temp
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
 
   sX <- cumsum(vX)
   alphaX <- IX - 1
@@ -86,6 +123,7 @@ distvar_fast.meanoutput <- function(X) {
   aidot <- Xdot + (2 * alphaX - n) * X - 2 * betaX
   Saa <- sum(aidot ^ 2)
 
+<<<<<<< HEAD
   adotdot <- 2 * sum(alphaX * X) - 2 * sum(betaX)
 
   gamma_1  <- PartialSum2D(X, X, rep(1, n))
@@ -108,8 +146,15 @@ mroot <- function(A) {
   e <- eigen(A)
   V <- e$vectors
   V %*% diag(e$values) %*% t(V)
+=======
+    aidot <- Xdot + (2 * alphaX - n) * X - 2 * betaX
+    Saa <- vector_prod_sum(aidot, aidot)
+
+    adotdot <- 2 * vector_prod_sum(alphaX, X) - 2 * sum(betaX)
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
 
 
+<<<<<<< HEAD
   B <- V %*% diag(sqrt(e$values)) %*% t(V)
   return(B)
 }
@@ -122,6 +167,11 @@ mroot <- function(A) {
 #' @return The distance matrix corresponding to X.
 gausskernel <- function(X, bandwidth) {
     return(exp(-1 * Rfast::Dist(X) ^ 2 / bandwidth))
+=======
+    aijaij <- specific_vector_prod_sum(X, X, gamma_1, gamma_X, gamma_X, gamma_XX)
+    dVar <- aijaij / n / (n - 3) - 2 * Saa / n / (n - 2) / (n - 3) + adotdot * adotdot / n / (n - 1) / (n - 2) / (n - 3)
+    return (list("dvar2"=dVar,"mean"=adotdot / n^2))
+>>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
 }
 
 

@@ -39,36 +39,35 @@ NumericVector DyadUpdate_new(IntegerVector & Y, NumericVector & C)
   return GAMMA;
 }
 
-// [[Rcpp::export]]
-NumericVector PartialSum2D_new(NumericVector & X,
-                           NumericVector & Y,
-                           NumericVector & Z,
-                           IntegerVector & IX0,
-                           IntegerVector & IY0) {
-  int n = X.size();
-  double Zdot = 0;
-  NumericVector Y_sort(n), Z_sort(n), sX(n + 1), sY(n + 1), gamma(n), gamma1(n);
-  IntegerVector IX(n), IY(n);
-
-  for (int i = 0; i < n; i++) {
-      int id_x = IX0[i];
-      int id_y = IY0[i];
-    IX[id_x] = i;
-    IY[id_y] = i;
-    Y_sort[i] = Y[id_x];
-    Z_sort[i] = Z[id_x];
-    sX[i + 1] = sX[i] + Z_sort[i];
-    sY[i + 1] = sY[id_y] + Z_sort[id_y];
-    Zdot += Z_sort[i];
-  }
-  gamma1 = DyadUpdate_new(IY, Z_sort);
-  for (int i = 0; i < n; i++) {
-      int id_x = IX[i];
-      int id_y = IY[id_x];
-    gamma[i] = Zdot - Z_sort[id_x] - 2 * sY[id_y] - 2 * sX[id_x] + 4 * gamma1[id_x];
-  }
-  return gamma;
-}
+// // [[Rcpp::export]]
+// NumericVector PartialSum2D_new(NumericVector & X,
+//                            NumericVector & Y,
+//                            NumericVector & Z,
+//                            IntegerVector & IX0,
+//                            IntegerVector & IY0) {
+//     int n = X.size();
+//     IntegerVector temp(n), IX(n), IY(n);
+//     for (int i = 0; i < n; i++) {
+//         temp[i] = i;
+//         IX[i] = i;
+//         IY[i] = i;
+//     }
+//     IX[IX0] = temp;
+//
+//     NumericVector Y_sort = Y[IX0 - 1];
+//     NumericVector Z_sort = Z[IX0 - 1];
+//     IY[IY0] = temp;
+//
+//     NumericVector sY = cumsum(Z_sort[IY0 - 1]) - Z_sort[IY0 - 1];
+//     NumericVector sX = cumsum(Z_sort) - Z_sort;
+//     double Zdot = sum(Z_sort);
+//
+//     NumericVector gamma1 = DyadUpdate(IY, Z_sort);
+//
+//     NumericVector gamma = Zdot - Z_sort - 2 * sY[IY] - 2 * sX + 4 * gamma1;
+//     gamma = gamma[IX];
+//     return gamma;
+// }
 
 // // [[Rcpp::export]]
 // distcov_fast <- function(X, Y) {
