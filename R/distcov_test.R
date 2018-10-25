@@ -63,6 +63,13 @@ distcov.test <- function(X,
             Y <- Y[cc, ]
         }
         n <- m <- length(cc)
+
+        if (type.X == "distance") {
+            X <- X[cc,cc]
+        }
+        if (type.Y == "distance") {
+            Y <- Y[cc,cc]
+        }
     }
 
 

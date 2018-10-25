@@ -54,7 +54,14 @@ distcov <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
             Y <- Y[cc, ]
         }
         n <- m <- length(cc)
-    }
+
+        if (type.X == "distance") {
+            X <- X[cc,cc]
+        }
+        if (type.Y == "distance") {
+            Y <- Y[cc,cc]
+        }
+     }
 
 
     if (bias_corr == TRUE && type.X == "sample" && type.Y == "sample" &&
@@ -182,6 +189,13 @@ distcorr <- function(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
             Y <- Y[cc, ]
         }
         n <- m <- length(cc)
+
+        if (type.X == "distance") {
+            X <- X[cc,cc]
+        }
+        if (type.Y == "distance") {
+            Y <- Y[cc,cc]
+        }
     }
 
 
@@ -316,6 +330,10 @@ distvar <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
             X <- X[ccX, ]
         }
         n <- length(ccX)
+        if (type.X == "distance") {
+            X <- X[cc,cc]
+        }
+
     }
 
 
