@@ -34,37 +34,42 @@ distcov <-
     if (n != m) {
       stop("Samples X and Y must have the same sizes!")
     }
-    
-    if (use == "complete.obs") {
-      ccX <- ccY <- cc <- 1:n
-      if (type.X == "sample") {
-        ccX <- which(complete.cases(X))
-      }
-      if (type.Y == "sample") {
-        ccY <- which(complete.cases(Y))
-      }
-      cc <- intersect(ccX, ccY)
-      if (type.X == "sample" && p == 1) {
-        X <- X[cc]
-      } else if (type.X == "sample" && p > 1) {
-        X <- X[cc, ]
-      }
-      if (type.Y == "sample" && p == 1) {
-        Y <- Y[cc]
-      } else if (type.X == "sample" && p > 1) {
-        Y <- Y[cc, ]
-      }
-      n <- m <- length(cc)
-    }
-    
-    
-    if (bias.corr == TRUE &&
-        type.X == "sample" && type.Y == "sample" &&
-        metr.X == "euclidean" &&
-        metr.Y == "euclidean" && n > 1000 && p == 1L && q == 1L) {
-      dcov2 <- distcov.fast(X, Y)
-      dcov <- sqrt(abs(dcov2)) * sign(dcov2)
-      return(dcov)
+
+    if  (use == "complete.obs") {
+        ccX <- ccY <- cc <- 1:n
+        if (type.X == "sample") {
+            ccX <- which(complete.cases(X))
+        }
+        if (type.Y == "sample") {
+            ccY <- which(complete.cases(Y))
+        }
+        cc <- intersect(ccX, ccY)
+        if (type.X == "sample" && p == 1) {
+            X <- X[cc]
+        } else if (type.X == "sample" && p > 1) {
+            X <- X[cc, ]
+        }
+        if (type.Y == "sample" && p == 1) {
+            Y <- Y[cc]
+        } else if (type.X == "sample" && p > 1) {
+            Y <- Y[cc, ]
+        }
+        n <- m <- length(cc)
+
+        if (type.X == "distance") {
+            X <- X[cc,cc]
+        }
+        if (type.Y == "distance") {
+            Y <- Y[cc,cc]
+        }
+     }
+
+
+    if (bias.corr == TRUE && type.X == "sample" && type.Y == "sample" &&
+        metr.X == "euclidean" && metr.Y == "euclidean" && n > 1000 && p == 1L && q == 1L) {
+        dcov2 <- distcov.fast(X, Y)
+        dcov <- sqrt(abs(dcov2)) * sign(dcov2)
+        return(dcov)
     }
     
     
@@ -166,25 +171,32 @@ distcorr <-
     q <- ss.dimY$Dimension
     
     if (use == "complete.obs") {
-      ccX <- ccY <- cc <- 1:n
-      if (type.X == "sample") {
-        ccX <- which(complete.cases(X))
-      }
-      if (type.Y == "sample") {
-        ccY <- which(complete.cases(Y))
-      }
-      cc <- intersect(ccX, ccY)
-      if (type.X == "sample" && p == 1) {
-        X <- X[cc]
-      } else if (type.X == "sample" && p > 1) {
-        X <- X[cc, ]
-      }
-      if (type.Y == "sample" && p == 1) {
-        Y <- Y[cc]
-      } else if (type.X == "sample" && p > 1) {
-        Y <- Y[cc, ]
-      }
-      n <- m <- length(cc)
+        ccX <- ccY <- cc <- 1:n
+        if (type.X == "sample") {
+            ccX <- which(complete.cases(X))
+        }
+        if (type.Y == "sample") {
+            ccY <- which(complete.cases(Y))
+        }
+        cc <- intersect(ccX, ccY)
+        if (type.X == "sample" && p == 1) {
+            X <- X[cc]
+        } else if (type.X == "sample" && p > 1) {
+            X <- X[cc, ]
+        }
+        if (type.Y == "sample" && p == 1) {
+            Y <- Y[cc]
+        } else if (type.X == "sample" && p > 1) {
+            Y <- Y[cc, ]
+        }
+        n <- m <- length(cc)
+
+        if (type.X == "distance") {
+            X <- X[cc,cc]
+        }
+        if (type.Y == "distance") {
+            Y <- Y[cc,cc]
+        }
     }
     
     
@@ -342,17 +354,20 @@ distvar <-
     p <- ss.dimX$Dimension
     
     if (use == "complete.obs") {
-      ccX <-  1:n
-      if (type.X == "sample") {
-        ccX <- which(complete.cases(X))
-      }
-      if (type.X == "sample" && p == 1) {
-        X <- X[ccX]
-      } else if (type.X == "sample" && p > 1) {
-        X <- X[ccX, ]
-      }
-      n <- length(ccX)
-    }
+        ccX <-  1:n
+        if (type.X == "sample") {
+            ccX <- which(complete.cases(X))
+        }
+        if (type.X == "sample" && p == 1) {
+            X <- X[ccX]
+        } else if (type.X == "sample" && p > 1) {
+            X <- X[ccX, ]
+        }
+        n <- length(ccX)
+        if (type.X == "distance") {
+            X <- X[cc,cc]
+        }
+     }
     
     
     if (bias.corr == TRUE &&

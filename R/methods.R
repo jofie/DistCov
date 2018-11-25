@@ -2,6 +2,7 @@
 #'
 #' @param X contains either the first sample or its corresponding distance matrix. In the first case, this input can be either a vector of positive length, a matrix with one column or a data.frame with one column. In this case, type.X must be specified as "sample". In the second case, the input must be a distance matrix corresponding to the sample of interest. In this second case, type.X must be "distance".
 #' @param bias.corr logical; indicates if the bias corrected version of the sample distance covariance should be calculated.
+#' @param type.X either "sample" or "distance"; specifies the type of input for X.
 #' @param metr.X specifies the metric which should be used for X to analyse the distance covariance. TO DO: Provide details for this.
 #' @param use : "all" uses all observations, "complete.obs" only uses observations that are complete for all variables, "pairwise.complete.obs" uses pairwise complete observations for computing distance covariances
 #' @return numeric giving the distance covariance between samples X and Y.
@@ -9,18 +10,22 @@
 distcovmatrix <-
   function(X,
            bias.corr = TRUE,
+           type.X = "sample",
            metr.X = "euclidean",
            dcor = FALSE,
            test = "none",
            perms = 499L,
            use = "all") {
     #extract dimensions and sample sizes
-    ss.dimX <- extract_np(X, type.X = "sample")
+    if (is.data.frame(X))
+      X <- as.matrix(X)
     
     n <- ss.dimX$Sample.Size
     p <- ss.dimX$Dimension
     
-    if (use == "complete.obs") {
+   
+  if (use == "complete.obs") {
+
       ccX <-  1:n
       if (type.X == "sample") {
         ccX <- which(complete.cases(X))
@@ -197,24 +202,32 @@ dcsis <-
           use = use
         ))
     
+    if  (use == "complete.obs") {
+            cc_resp <- complete.cases(response)
+            response <- response[cc_resp]
+            X <- X[cc_resp,]
+    }
+
+
+
     orddcor <- Rfast::Order(dcorvec, descending = TRUE)
     
     if (!is.null(top) | is.null(threshold))
-      top <- ceiling(n / log(n))
+      top <- min(p, ceiling(n / log(n)))
     else if (is.null(top))
       top <- length(which(dcorvec > threshold))
-    
-    select <- orddcor[1:top]
+
+    selected <- orddcor[1:top]
     
     if (return.all == FALSE)
-      return(select)
+      return(selected)
     else
       return(
         list(
           "order.all" = orddcor,
           "dcor.all" = dcorvec,
-          "selected" = select,
-          "dcor.selected" = dcorvec[select]
+          "selected" = selected,
+          "dcor.selected" = dcorvec[selected]
         )
       )
     
