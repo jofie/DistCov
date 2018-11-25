@@ -1,16 +1,11 @@
-<<<<<<< HEAD
 distvar.meanoutput <-
   function(X,
            affine = FALSE,
-           bias_corr = TRUE,
+           bias.corr = TRUE,
            type.X = "sample",
            metr.X = "euclidean",
-           bandwidth = 1) {
-=======
-distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
-                               metr.X = "euclidean", alpha = 1, use = "all") {
+           use = "all") {
 
->>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
     #extract dimensions and sample sizes
     ss.dimX <- extract_np(X, type.X)
 
@@ -31,20 +26,15 @@ distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sa
     }
 
 
-    if (bias_corr == TRUE &&
+    if (bias.corr == TRUE &&
         type.X == "sample" &&
         metr.X == "euclidean" && n > 175 && p == 1L) {
-<<<<<<< HEAD
-      dvar2 <- distvar_fast.meanoutput(X)
-      dvar <- sqrt(abs(dvar2$dvar2)) * sign(dvar2$dvar2)
-      return(list("dvar2" = dvar, "mean" = dvar2$mean))
-=======
-        dvar2mean <- distvar_fast.meanoutput(X)
+
+        dvar2mean <- distvar.fast.meanoutput(X)
         dvar2 <- dvar2mean$dvar2
         dvar <- sqrt(abs(dvar2)) * sign(dvar2)
-        return(list("dvar"=dvar,"mean"=dvar2mean$mean))
->>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
-    }
+        return(list("dvar" = dvar, "mean" = dvar2mean$mean))
+  }
 
     ## normalize samples if calculation of affinely invariant distance covariance is desired
     if (affine == TRUE) {
@@ -52,7 +42,7 @@ distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sa
         stop("Affinely invariant distance variance cannot be calculated for p>n")
       }
       if (type.X == "distance") {
-        stop("Affinely invariant distance variance cannot be calculated for type distance")
+        stop("Affinely invariant distance variance cannot be calculated for type 'distance'")
       }
       if (p > 1) {
         X <- X %*% Rfast::spdinv(mroot(var(X)))
@@ -66,12 +56,8 @@ distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sa
     if (type.X == "distance") {
       distX <- X
     } else {
-<<<<<<< HEAD
       distX <- distmat(X, metr.X, n, p)
-=======
-        distX <- distmat(X, metr.X, alpha, n, p)
->>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
-    }
+}
 
     ##calculate rowmeans
     cmX <- Rfast::colmeans(distX)
@@ -79,7 +65,7 @@ distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sa
     ##calculate means of total matrix
     mX <- .Internal(mean(cmX))
 
-    if (bias_corr == TRUE) {
+    if (bias.corr == TRUE) {
       term1 <- matrix_prod_sum(distX, distX) / n / (n - 3)
       term2 <- n ^ 4 * mX ^ 2 / n / (n - 1) / (n - 2) / (n - 3)
       term3 <-
@@ -88,7 +74,7 @@ distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sa
     }
 
 
-    if (bias_corr == FALSE) {
+    if (bias.corr == FALSE) {
       term1 <- matrix_prod_sum(distX, distX) / n ^ 2
       term2 <- mX * mX
       term3 <- vector_prod_sum(cmX, cmX) / n
@@ -100,38 +86,29 @@ distvar.meanoutput <- function(X, affine = FALSE, bias_corr = TRUE, type.X = "sa
   }
 
 
-distvar_fast.meanoutput <- function(X) {
+distvar.fast.meanoutput <- function(X) {
   n <- length(X)
   temp <- IX <- 1:n
 
-  vX <- Sort(X)
-  IX0 <- Rfast::Order(X) + 1
+  IX0 <- Rfast::Order(X)
+  vX <- X[IX0]
   IX[IX0] <- temp
 
-<<<<<<< HEAD
-=======
-    IX0 <- Rfast::Order(X)
-    vX <- X[IX0]
-    IX[IX0] <- temp
->>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
 
   sX <- cumsum(vX)
   alphaX <- IX - 1
   betaX <- sX[IX] - vX[IX]
   Xdot <- sum(X)
-
   aidot <- Xdot + (2 * alphaX - n) * X - 2 * betaX
-  Saa <- sum(aidot ^ 2)
-
-<<<<<<< HEAD
-  adotdot <- 2 * sum(alphaX * X) - 2 * sum(betaX)
-
-  gamma_1  <- PartialSum2D(X, X, rep(1, n))
-  gamma_X  <- PartialSum2D(X, X, X)
-  gamma_XX <- PartialSum2D(X, X, X * X)
-
-  aijaij <-
-    sum(X ^ 2 * gamma_1 + gamma_XX - X * gamma_X - X * gamma_X)
+  Saa <- vector_prod_sum(aidot, aidot)
+  
+  adotdot <- 2 * vector_prod_sum(alphaX, X) - 2 * sum(betaX)
+  
+  gamma.1  <- PartialSum2D(X, X, rep(1, n))
+  gamma.X  <- PartialSum2D(X, X, X)
+  gamma.XX <- PartialSum2D(X, X, X * X)
+  
+  aijaij <- specific_vector_prod_sum(X, X, gamma.1, gamma.X, gamma.X, gamma.XX)
   dvar <-
     aijaij / n / (n - 3) - 2 * Saa / n / (n - 2) / (n - 3) + adotdot * adotdot / n / (n - 1) / (n - 2) / (n - 3)
   return(list("dvar2" = dvar, "mean" = adotdot / n ^ 2))
@@ -146,15 +123,6 @@ mroot <- function(A) {
   e <- eigen(A)
   V <- e$vectors
   V %*% diag(e$values) %*% t(V)
-=======
-    aidot <- Xdot + (2 * alphaX - n) * X - 2 * betaX
-    Saa <- vector_prod_sum(aidot, aidot)
-
-    adotdot <- 2 * vector_prod_sum(alphaX, X) - 2 * sum(betaX)
->>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
-
-
-<<<<<<< HEAD
   B <- V %*% diag(sqrt(e$values)) %*% t(V)
   return(B)
 }
@@ -167,11 +135,6 @@ mroot <- function(A) {
 #' @return The distance matrix corresponding to X.
 gausskernel <- function(X, bandwidth) {
     return(exp(-1 * Rfast::Dist(X) ^ 2 / bandwidth))
-=======
-    aijaij <- specific_vector_prod_sum(X, X, gamma_1, gamma_X, gamma_X, gamma_XX)
-    dVar <- aijaij / n / (n - 3) - 2 * Saa / n / (n - 2) / (n - 3) + adotdot * adotdot / n / (n - 1) / (n - 2) / (n - 3)
-    return (list("dvar2"=dVar,"mean"=adotdot / n^2))
->>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
 }
 
 
@@ -194,7 +157,6 @@ distmat <- function(X,
 {
     args <- list(...)
     bandwidth = args$bandwidth
-    print(args)
    if (metr.X == "euclidean" && p == 1) {
     distX <- Rfast::Dist(X)
   } else if (metr.X == "gaussian" && p == 1) {
@@ -223,7 +185,7 @@ distmat <- function(X,
 #'
 #' @param X a numeric vector or a numeric matrix.
 #' @param metr.X metric that should be used to compute the distance matrix.
-#' @param bias_corr logical; indicates if the corresponding estimator of the covariance matrix is biased or unbiased.
+#' @param bias.corr logical; indicates if the corresponding estimator of the covariance matrix is biased or unbiased.
 #' @param ... additional parameters that are used for other metrics (e.g., the bandwidth for Gaussian kernels)
 #' @details For metr.X the following metrices are built in: euclidean, gaussian and discrete. However,
 #' it is possible to use a function taking two numerical arguments as metr.X.
@@ -232,7 +194,7 @@ distmat <- function(X,
 centmat <- function(X,
                     metr.X = "euclidean",
                     type.X = "sample",
-                    bias_corr = TRUE,
+                    bias.corr = TRUE,
                     n,
                     p,
                     ...) {
@@ -245,14 +207,14 @@ centmat <- function(X,
   cmX <- Rfast::colmeans(distX)
   mX <- .Internal(mean(cmX))
 
-  if (bias_corr == TRUE) {
+  if (bias.corr == TRUE) {
     cmX <- n * cmX / (n - 2)
     mX  <- n ^ 2 * mX / (n - 1) / (n - 2)
   }
 
   res <- normalize_matrix(distX, cmX, mX)
 
-  if (bias_corr == TRUE) {
+  if (bias.corr == TRUE) {
     diag(res) <- rep(0, n)
     res <- sqrt(n / (n - 3)) * res
   }
@@ -278,14 +240,14 @@ extract_np <- function(X, type.X) {
       n <- nrow(X)
       p <- ncol(X)
     } else {
-      return("X must be a vector or matrix for type sample")
+      stop("X must be a vector or matrix for type 'sample'!")
     }
   } else if (type.X == "distance") {
     if (is.matrix(X)) {
       n <- nrow(X)
       p <- 1L
     } else {
-      return("X must be a matrix for type distance")
+      stop("X must be a matrix for type 'distance'!")
     }
   } else {
     stop("type.X must be either 'sample' or 'distance'.")

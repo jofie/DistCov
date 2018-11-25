@@ -71,7 +71,6 @@ double specific_vector_prod_sum(NumericVector & X,
 }
 
 // [[Rcpp::export]]
-<<<<<<< HEAD
 double matrix_sum(NumericMatrix & X) {
   double res = 0;
   int n = X.nrow();
@@ -82,7 +81,7 @@ double matrix_sum(NumericMatrix & X) {
   }
   return 2 * res;
 }
-=======
+
 double matrix_prod_sum_sample(const NumericMatrix X, const NumericMatrix Y, const IntegerVector s){
     unsigned int n = X.nrow();
     double res = 0;
@@ -104,8 +103,6 @@ double vector_prod_sum_sample(const NumericVector X, const NumericVector Y, cons
     }
     return res;
 }
-
->>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
 
 
 

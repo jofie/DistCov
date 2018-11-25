@@ -5,14 +5,6 @@ DyadUpdate <- function(Y, C) {
     .Call('_DistCov_DyadUpdate', PACKAGE = 'DistCov', Y, C)
 }
 
-add_vector <- function(X, Y) {
-    .Call('_DistCov_add_vector', PACKAGE = 'DistCov', X, Y)
-}
-
-match_coords <- function(X, Y) {
-    .Call('_DistCov_match_coords', PACKAGE = 'DistCov', X, Y)
-}
-
 normalize_matrix <- function(M, cmM, mM) {
     .Call('_DistCov_normalize_matrix', PACKAGE = 'DistCov', M, cmM, mM)
 }
@@ -37,32 +29,11 @@ specific_vector_prod_sum <- function(X, Y, gamma_1, gamma_X, gamma_Y, gamma_XY) 
     .Call('_DistCov_specific_vector_prod_sum', PACKAGE = 'DistCov', X, Y, gamma_1, gamma_X, gamma_Y, gamma_XY)
 }
 
-<<<<<<< HEAD
 matrix_sum <- function(X) {
     .Call('_DistCov_matrix_sum', PACKAGE = 'DistCov', X)
-=======
-matrix_prod_sum_sample <- function(X, Y, s) {
-    .Call('_DistCov_matrix_prod_sum_sample', PACKAGE = 'DistCov', X, Y, s)
 }
 
 vector_prod_sum_sample <- function(X, Y, s) {
     .Call('_DistCov_vector_prod_sum_sample', PACKAGE = 'DistCov', X, Y, s)
->>>>>>> 44339235b05cb904941ca7278987ae1e688f70eb
-}
-
-rcpp_parallel_distance <- function(vec) {
-    .Call('_DistCov_rcpp_parallel_distance', PACKAGE = 'DistCov', vec)
-}
-
-rcpp_parallel_colsums <- function(mat) {
-    .Call('_DistCov_rcpp_parallel_colsums', PACKAGE = 'DistCov', mat)
-}
-
-rcpp_parallel_prod_sum <- function(dist1, dist2) {
-    .Call('_DistCov_rcpp_parallel_prod_sum', PACKAGE = 'DistCov', dist1, dist2)
-}
-
-parallelVectorSum <- function(x) {
-    .Call('_DistCov_parallelVectorSum', PACKAGE = 'DistCov', x)
 }
 

@@ -4,8 +4,8 @@
 \alias{distvar}
 \title{Calculates the distance variance}
 \usage{
-distvar(X, affine = FALSE, bias_corr = TRUE, type.X = "sample",
-  metr.X = "euclidean", bandwidth = 1, use = "all")
+distvar(X, affine = FALSE, bias.corr = TRUE, type.X = "sample",
+  metr.X = "euclidean", use = "all")
 }
 \arguments{
 \item{X}{contains either the first sample or its corresponding distance matrix.
@@ -22,13 +22,11 @@ In this second case, type.X must be "distance".}
 
 \item{affine}{logical; indicates if the affinely transformed distance variance should be calculated or not.}
 
-\item{bias_corr}{logical; indicates if the bias corrected version of the sample distance variance should be calculated.}
+\item{bias.corr}{logical; indicates if the bias corrected version of the sample distance variance should be calculated.}
 
 \item{type.X}{either "sample" or "distance"; specifies the type of input for X.}
 
 \item{metr.X}{specifies the metric which should be used for X to analyse the distance variance TO DO: Provide details for this.}
-
-\item{bandwidth}{currently not implemented.}
 
 \item{use}{: "all" uses all observations, "complete.obs" excludes NA's}
 }

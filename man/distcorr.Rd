@@ -4,9 +4,9 @@
 \alias{distcorr}
 \title{Calculates the distance correlation}
 \usage{
-distcorr(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
+distcorr(X, Y, affine = FALSE, bias.corr = TRUE, type.X = "sample",
   type.Y = "sample", metr.X = "euclidean", metr.Y = "euclidean",
-  bandwidth = 1, use = "all")
+  use = "all")
 }
 \arguments{
 \item{X}{contains either the first sample or its corresponding distance matrix. In the first case, this input can be either a vector of positive length, a matrix with one column or a data.frame with one column. In this case, type.X must be specified as "sample". In the second case, the input must be a distance matrix corresponding to the sample of interest. In this second case, type.X must be "distance".}
@@ -15,7 +15,7 @@ distcorr(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 
 \item{affine}{logical; indicates if the affinely transformed distance correlation should be calculated or not.}
 
-\item{bias_corr}{logical; indicates if the bias corrected version of the sample distance correlation should be calculated.}
+\item{bias.corr}{logical; indicates if the bias corrected version of the sample distance correlation should be calculated.}
 
 \item{type.X}{either "sample" or "distance"; specifies the type of input for X.}
 
@@ -24,8 +24,6 @@ distcorr(X, Y, affine = FALSE, bias_corr = TRUE, type.X = "sample",
 \item{metr.X}{specifies the metric which should be used for X to analyse the distance correlation. TO DO: Provide details for this.}
 
 \item{metr.Y}{see metr.X.}
-
-\item{bandwidth}{currently not implemented.}
 
 \item{use}{: "all" uses all observations, "complete.obs" excludes NA's}
 }
